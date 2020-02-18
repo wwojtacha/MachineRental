@@ -12,4 +12,5 @@ public class BindingResultException extends RuntimeException {
         super();
         this.bindingResult = bindingResult;
     }
+
 }

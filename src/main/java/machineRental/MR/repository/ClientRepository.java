@@ -1,6 +1,6 @@
 package machineRental.MR.repository;
 
-import machineRental.MR.model.Client;
+import machineRental.MR.client.model.Client;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +20,5 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             Pageable pageable
     );
 
+    Client findByMpk(String mpk);
 }
