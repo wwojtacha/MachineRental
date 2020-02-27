@@ -5,10 +5,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import javax.validation.constraints.NotNull;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.machine.model.Machine;
 import machineRental.MR.operator.model.Operator;
 import machineRental.MR.workDocument.model.WorkDocument;
+import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
+import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -24,6 +27,8 @@ public class WorkDocumentEntryValidator {
 
     ALL_WORK_REPORT_ENTRIES:
     for (WorkDocumentEntryForValidation workDocumentEntry : workDocumentEntriesForValidation) {
+
+      checkSameEntryWorkingHours(workDocumentEntry, bindingResult);
 
       WorkDocument currentWorkDocument = workDocumentEntry.getWorkDocument();
       Operator currentOperator = currentWorkDocument.getOperator();
@@ -66,6 +71,18 @@ public class WorkDocumentEntryValidator {
     }
   }
 
+  private void checkSameEntryWorkingHours(WorkDocumentEntryForValidation workDocumentEntry, BindingResult bindingResult) {
+    LocalTime startHour = workDocumentEntry.getStartHour();
+    LocalTime endHour = workDocumentEntry.getEndHour();
+
+    if (endHour.isBefore(startHour) || endHour.equals(startHour)) {
+      bindingResult.addError(new FieldError("workDocumentEntry", "endHour", "End hour cannot be lower or equal to start hour"));
+    }
+    if (bindingResult.hasErrors()) {
+      throw new BindingResultException(bindingResult);
+    }
+  }
+
   private boolean isActivityTimeOverlapping(WorkDocumentEntryForValidation workDocumentEntry, WorkDocumentEntryForValidation workDocumentEntryToCheck) {
     return isStartHourOverlapping(workDocumentEntry, workDocumentEntryToCheck)
         || isEndHourOverlapping(workDocumentEntry, workDocumentEntryToCheck)
@@ -100,5 +117,37 @@ public class WorkDocumentEntryValidator {
     return EXPLOITATION_WORK_CODES.contains(workDocumentEntry.getWorkCode()) && EXPLOITATION_WORK_CODES.contains(workDocumentEntryToCheck.getWorkCode());
   }
 
+  public void validateWorkReportEntryQuantity(WorkReportEntry workReportEntry, BindingResult bindingResult) {
+    int workQuantity = workReportEntry.getWorkQuantity();
+    if (workQuantity < 0) {
+      bindingResult.addError(new FieldError("workReportEntry", "workQuantity", "Work quantity cannot be lower than 0."));
+    }
+
+    if (bindingResult.hasErrors()) {
+      throw new BindingResultException(bindingResult);
+    }
+  }
+
+  public void validateRoadCardEntryQuantity(RoadCardEntry roadCardEntry, BindingResult bindingResult) {
+    int quantity = roadCardEntry.getQuantity();
+    if (quantity < 0) {
+      bindingResult.addError(new FieldError("roadCardEntry", "quantity", "Transported material/item quantity cannot be lower than 0."));
+    }
+
+    if (bindingResult.hasErrors()) {
+      throw new BindingResultException(bindingResult);
+    }
+  }
+
+  public void validateRoadCardEntryDistance(RoadCardEntry roadCardEntry, BindingResult bindingResult) {
+    int distance = roadCardEntry.getDistance();
+    if (distance < 0) {
+      bindingResult.addError(new FieldError("roadCardEntry", "distance", "Distance cannot be lower than 0."));
+    }
+
+    if (bindingResult.hasErrors()) {
+      throw new BindingResultException(bindingResult);
+    }
+  }
 
 }

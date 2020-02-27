@@ -41,7 +41,7 @@ public class Order {
     private String priceType;
 
     @NotNull
-    @Min(value = 1, message = "Order quantity cannot be lower then 0")
+    @Min(value = 1, message = "Order quantity cannot be lower then 1")
     @Column(nullable = false)
     private int quantity = 1;
 

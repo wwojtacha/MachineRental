@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.transaction.Transactional;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
+import machineRental.MR.workDocument.validator.WorkDocumentValidator;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import machineRental.MR.repository.WorkReportEntryRepository;
@@ -35,15 +36,17 @@ public class WorkReportEntryService {
 
   public List<WorkReportEntry> create(List<WorkReportEntry> workReportEntries, BindingResult bindingResult) {
 
-
     Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation = WorkDocumentEntryForValidation.fromWorkReportEntries(workReportEntries);
 
     Collection<WorkDocumentEntryForValidation> allWorkDocumentEntriesForValidation = getAllWorkDocumentEntriesForValidation(workReportEntries, workDocumentEntriesForValidation);
 
-    new WorkDocumentEntryValidator().validateWorkingTime(workDocumentEntriesForValidation, allWorkDocumentEntriesForValidation, bindingResult);
-
+    WorkDocumentEntryValidator workDocumentEntryValidator = new WorkDocumentEntryValidator();
+    workDocumentEntryValidator.validateWorkingTime(workDocumentEntriesForValidation, allWorkDocumentEntriesForValidation, bindingResult);
 
     for (WorkReportEntry workReportEntry : workReportEntries) {
+
+      workDocumentEntryValidator.validateWorkReportEntryQuantity(workReportEntry, bindingResult);
+
       Long id = workReportEntry.getId();
       if (isToBeCreated(id)) {
         validateWorkReportEntryIdConsistency(CREATION_MODE_WORK_REPORT_ENTRY_ID, CREATION_MODE_WORK_REPORT_ENTRY_ID, bindingResult);
@@ -64,7 +67,8 @@ public class WorkReportEntryService {
     return workReportEntries;
   }
 
-  private Collection<WorkDocumentEntryForValidation> getAllWorkDocumentEntriesForValidation(List<WorkReportEntry> workReportEntries, Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation ) {
+  private Collection<WorkDocumentEntryForValidation> getAllWorkDocumentEntriesForValidation(List<WorkReportEntry> workReportEntries,
+      Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation) {
     Set<WorkReportEntry> dbWorkReportEntries = getDbWorkReportEntries(workReportEntries);
     Collection<WorkDocumentEntryForValidation> dbWorkReportEntriesForValidation = WorkDocumentEntryForValidation.fromWorkReportEntries(dbWorkReportEntries);
 
@@ -98,14 +102,14 @@ public class WorkReportEntryService {
   }
 
   private void validateWorkReportEntryIdConsistency(Long id, Long currentId, BindingResult bindingResult) {
-    if(workReportEntryRepository.existsById(id) && !id.equals(currentId)) {
+    if (workReportEntryRepository.existsById(id) && !id.equals(currentId)) {
       bindingResult.addError(new FieldError(
           "workReportEntry",
           "id",
           String.format("Work report entry with id: \'%s\' already exists", id)));
     }
 
-    if(bindingResult.hasErrors()) {
+    if (bindingResult.hasErrors()) {
       throw new BindingResultException(bindingResult);
     }
   }

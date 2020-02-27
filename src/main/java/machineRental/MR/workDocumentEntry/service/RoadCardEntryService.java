@@ -37,11 +37,14 @@ public class RoadCardEntryService {
 
     Collection<WorkDocumentEntryForValidation> allWorkDocumentEntriesForValidation = getAllWorkDocumentEntriesForValidation(roadCardEntries, workDocumentEntriesForValidation);
 
-    new WorkDocumentEntryValidator().validateWorkingTime(workDocumentEntriesForValidation, allWorkDocumentEntriesForValidation, bindingResult);
-
-
+    WorkDocumentEntryValidator workDocumentEntryValidator = new WorkDocumentEntryValidator();
+    workDocumentEntryValidator.validateWorkingTime(workDocumentEntriesForValidation, allWorkDocumentEntriesForValidation, bindingResult);
 
     for (RoadCardEntry roadCardEntry : roadCardEntries) {
+
+      workDocumentEntryValidator.validateRoadCardEntryQuantity(roadCardEntry, bindingResult);
+      workDocumentEntryValidator.validateRoadCardEntryDistance(roadCardEntry, bindingResult);
+
       Long id = roadCardEntry.getId();
       if (isToBeCreated(id)) {
         validateRoadCardEntryIdConsistency(CREATION_MODE_WORK_REPORT_ENTRY_ID, CREATION_MODE_WORK_REPORT_ENTRY_ID, bindingResult);
