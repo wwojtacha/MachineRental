@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.transaction.Transactional;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
-import machineRental.MR.workDocument.validator.WorkDocumentValidator;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import machineRental.MR.repository.WorkReportEntryRepository;

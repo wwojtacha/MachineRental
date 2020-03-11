@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
-import javax.validation.constraints.NotNull;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.machine.model.Machine;
 import machineRental.MR.operator.model.Operator;

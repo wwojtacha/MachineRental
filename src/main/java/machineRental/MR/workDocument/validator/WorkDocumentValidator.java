@@ -1,13 +1,11 @@
 package machineRental.MR.workDocument.validator;
 
-import javax.validation.constraints.NotNull;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.machine.model.Machine;
 import machineRental.MR.operator.model.Operator;
 import machineRental.MR.repository.MachineRepository;
 import machineRental.MR.repository.OperatorRepository;
-import machineRental.MR.repository.WorkDocumentRepository;
 import machineRental.MR.workDocument.model.WorkDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
