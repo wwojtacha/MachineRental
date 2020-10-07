@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import lombok.Data;
 import machineRental.MR.workDocument.DocumentType;
 import machineRental.MR.machine.model.Machine;
@@ -44,10 +45,19 @@ public class WorkDocument {
 
   @NotNull
   @Column
-  private int counterStart;
+  private double counterStart;
 
   @NotNull
   @Column
-  private int counterEnd;
+  private double counterEnd;
+
+  @NotNull
+  @Column
+  @Pattern(regexp = "0%|50%|100%")
+  private String delegation;
+
+  @NotNull
+  @Column
+  private String invoiceNumber = "NOT DEFINED";
 
 }

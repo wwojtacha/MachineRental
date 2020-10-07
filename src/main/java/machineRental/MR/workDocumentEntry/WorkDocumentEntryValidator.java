@@ -35,7 +35,7 @@ public class WorkDocumentEntryValidator {
 
       for (WorkDocumentEntryForValidation workDocumentEntryToCheck : allWorkDocumentEntriesForValidation) {
 
-        if ((workDocumentEntry.getId() != null && workDocumentEntry.getId() == workDocumentEntryToCheck.getId()) || workDocumentEntry == workDocumentEntryToCheck) {
+        if ((workDocumentEntry.getId() != null && workDocumentEntry.getId().equals(workDocumentEntryToCheck.getId())) || workDocumentEntry == workDocumentEntryToCheck) {
           continue;
         }
 
@@ -52,7 +52,7 @@ public class WorkDocumentEntryValidator {
                 "workHour",
                 String.format("Working time of operator %s overlaps in time with his/her other activity for this day.", operatorToCheck.getName())));
             break ALL_WORK_REPORT_ENTRIES;
-          } else if(currentMachine.getId() == machineToCheck.getId() && isWorkCodeOverlapping(workDocumentEntry, workDocumentEntryToCheck)) {
+          } else if (currentMachine.getId() == machineToCheck.getId() && isWorkCodeOverlapping(workDocumentEntry, workDocumentEntryToCheck)) {
             bindingResult.addError(new FieldError(
                 "workReportEntryMachine",
                 "workHour",
@@ -117,7 +117,7 @@ public class WorkDocumentEntryValidator {
   }
 
   public void validateWorkReportEntryQuantity(WorkReportEntry workReportEntry, BindingResult bindingResult) {
-    int workQuantity = workReportEntry.getWorkQuantity();
+    double workQuantity = workReportEntry.getWorkQuantity();
     if (workQuantity < 0) {
       bindingResult.addError(new FieldError("workReportEntry", "workQuantity", "Work quantity cannot be lower than 0."));
     }
@@ -128,7 +128,7 @@ public class WorkDocumentEntryValidator {
   }
 
   public void validateRoadCardEntryQuantity(RoadCardEntry roadCardEntry, BindingResult bindingResult) {
-    int quantity = roadCardEntry.getQuantity();
+    double quantity = roadCardEntry.getQuantity();
     if (quantity < 0) {
       bindingResult.addError(new FieldError("roadCardEntry", "quantity", "Transported material/item quantity cannot be lower than 0."));
     }
@@ -139,7 +139,7 @@ public class WorkDocumentEntryValidator {
   }
 
   public void validateRoadCardEntryDistance(RoadCardEntry roadCardEntry, BindingResult bindingResult) {
-    int distance = roadCardEntry.getDistance();
+    double distance = roadCardEntry.getDistance();
     if (distance < 0) {
       bindingResult.addError(new FieldError("roadCardEntry", "distance", "Distance cannot be lower than 0."));
     }

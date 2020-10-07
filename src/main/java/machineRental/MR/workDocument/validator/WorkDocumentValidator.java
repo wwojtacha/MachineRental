@@ -49,8 +49,8 @@ public class WorkDocumentValidator {
   }
 
   private void validateCounterStates(WorkDocument workDocument, BindingResult bindingResult) {
-    int counterStart = workDocument.getCounterStart();
-    int counterEnd = workDocument.getCounterEnd();
+    double counterStart = workDocument.getCounterStart();
+    double counterEnd = workDocument.getCounterEnd();
 
     if (!isCounterEndGreaterThan(counterEnd, counterStart) || !isCounterStatePositive(counterStart, counterEnd)) {
       bindingResult.addError(new FieldError(
@@ -64,11 +64,11 @@ public class WorkDocumentValidator {
     }
   }
 
-  private boolean isCounterEndGreaterThan(int counterEnd, int counterStart) {
+  private boolean isCounterEndGreaterThan(double counterEnd, double counterStart) {
     return counterEnd >= counterStart;
   }
 
-  private boolean isCounterStatePositive(int counterStart, int counterEnd) {
+  private boolean isCounterStatePositive(double counterStart, double counterEnd) {
     return counterStart >= 0 && counterEnd >= 0;
   }
 

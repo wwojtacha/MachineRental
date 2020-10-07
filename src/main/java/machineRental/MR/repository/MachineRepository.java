@@ -11,25 +11,28 @@ public interface MachineRepository extends JpaRepository<Machine, Long> {
 
     boolean existsByInternalId(String internalId);
 
-    Page<Machine> findByInternalIdContainingAndNameContainingAndProducerContainingAndModelContainingAndProductionYearAndMachineStatusContainingAndMachineType_MachineTypeContaining(
+    Page<Machine> findByInternalIdContainingAndNameContainingAndProducerContainingAndModelContainingAndProductionYearAndOwner_NameContainingAndMachineStatusContainingAndMachineType_MachineTypeContaining(
             String internalId,
             String name,
             String producer,
             String model,
             Integer productionYear,
+            String owner,
             String machineStatus,
             String machineType,
             Pageable pageable
     );
 
-    Page<Machine> findByInternalIdContainingAndNameContainingAndProducerContainingAndModelContainingAndMachineStatusContainingAndMachineType_MachineTypeContaining(
+    Page<Machine> findByInternalIdContainingAndNameContainingAndProducerContainingAndModelContainingAndOwner_NameContainingAndMachineStatusContainingAndMachineType_MachineTypeContaining(
             String internalId,
             String name,
             String producer,
             String model,
+            String owner,
             String machineStatus,
             String machineType,
             Pageable pageable
     );
+
 
 }

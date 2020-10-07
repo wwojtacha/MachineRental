@@ -1,8 +1,14 @@
 package machineRental.MR.security.config;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import machineRental.MR.security.UserDetailsServiceImpl;
 import machineRental.MR.security.filter.JwtRequestFilter;
+import machineRental.MR.workDocument.DocumentType;
+import machineRental.MR.workDocument.service.RoadCardUpdateChecker;
+import machineRental.MR.workDocument.service.WorkDocumentUpdateChecker;
+import machineRental.MR.workDocument.service.WorkReportUpdateChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,10 +71,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
   public CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration corsConfiguration = new CorsConfiguration();
     corsConfiguration.addAllowedOrigin("http://localhost:4200");
+    corsConfiguration.addAllowedOrigin("http://161.97.86.114:4200");
     corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
     corsConfiguration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     // setAllowCredentials(true) is important, otherwise:
-    // The value of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
+    // The sellValue of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
     corsConfiguration.setAllowCredentials(true);
     // setAllowedHeaders is important! Without it, OPTIONS preflight request
     // will fail with 403 Invalid CORS request

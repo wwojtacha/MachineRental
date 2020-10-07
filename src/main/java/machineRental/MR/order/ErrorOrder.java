@@ -11,16 +11,16 @@ public final class ErrorOrder {
   public void noPriceInDbError(Order order, BindingResult bindingResult) {
     String machineInternaId = order.getMachine().getInternalId();
     Integer year = order.getStartDate().getYear();
-    bindingResult.addError(new FieldError("price", "id", format("There is no price in data base for machine \'%s\' and year \'%s\'", machineInternaId, year)));
+    bindingResult.addError(new FieldError("sellPrice", "id", format("There is no sellPrice in data base for machine \'%s\' and year \'%s\'", machineInternaId, year)));
   }
 
   public void wrongPriceTypeError(BindingResult bindingResult) {
-    bindingResult.addError(new FieldError("order", "price", "Price type must be specific to rental time e.g. 8 days require 'Week' price type"));
+    bindingResult.addError(new FieldError("order", "sellPrice", "Price type must be specific to rental time e.g. 8 days require 'Week' sellPrice type"));
 
   }
 
   public void wrongPriceValueError(BindingResult bindingResult) {
-    bindingResult.addError(new FieldError("order", "price", "Price cannot be lower then 0"));
+    bindingResult.addError(new FieldError("order", "sellPrice", "Price cannot be lower then 0"));
 
   }
 
@@ -39,6 +39,6 @@ public final class ErrorOrder {
   }
 
   public void wrongFebruaryPriceTypeError(BindingResult bindingResult) {
-    bindingResult.addError(new FieldError("order", "price", "Whole February was selected. In this case price type must be chosen as \'Month\'."));
+    bindingResult.addError(new FieldError("order", "sellPrice", "Whole February was selected. In this case sellPrice type must be chosen as \'Month\'."));
   }
 }

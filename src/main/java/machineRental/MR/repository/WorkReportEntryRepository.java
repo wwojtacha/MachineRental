@@ -17,4 +17,7 @@ public interface WorkReportEntryRepository extends JpaRepository<WorkReportEntry
   List<WorkReportEntry> findByWorkDocument_MachineAndWorkDocument_DateEquals(Machine machine, LocalDate date);
 
 
+  boolean existsByHourPrice_Id(Long priceId);
+
+  List<WorkReportEntry> findAllByHourPrice_Id(Long id);
 }

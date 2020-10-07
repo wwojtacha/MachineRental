@@ -10,19 +10,23 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WorkDocumentRepository extends JpaRepository<WorkDocument, String> {
 
-  Page<WorkDocument> findByIdContainingAndDocumentTypeInAndDateEqualsAndOperator_NameContainingAndMachine_InternalIdContainingOrderByDate(
+  Page<WorkDocument> findByIdContainingAndDocumentTypeInAndDateEqualsAndOperator_NameContainingAndMachine_InternalIdContainingAndDelegationContainingAndInvoiceNumberContainingOrderByDate(
       String id,
       List<DocumentType> documentType,
       LocalDate date,
       String operatorName,
       String machineInternalId,
+      String delegation,
+      String invoiceNumber,
       Pageable pageable);
 
-  Page<WorkDocument> findByIdContainingAndDocumentTypeInAndOperator_NameContainingAndMachine_InternalIdContainingOrderByDate(
+  Page<WorkDocument> findByIdContainingAndDocumentTypeInAndOperator_NameContainingAndMachine_InternalIdContainingAndDelegationContainingAndInvoiceNumberContainingOrderByDate(
       String id,
       List<DocumentType> documentType,
       String operatorName,
       String machineInternalId,
+      String delegation,
+      String invoiceNumber,
       Pageable pageable);
 
 }

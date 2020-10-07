@@ -38,7 +38,7 @@ public class UserService {
 
     public User create (User user, BindingResult bindingResult) {
         if (!authorizationValidator.isAdmin()) {
-            throw new UnauthorizedException("You are not permitted to create new users.");
+            throw new UnauthorizedException("You are not permitted to uploadFile new users.");
         }
         validate(user, null, bindingResult);
         return save(user);

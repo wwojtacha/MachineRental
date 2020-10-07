@@ -11,6 +11,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
+import machineRental.MR.costcode.model.CostCode;
+import machineRental.MR.estimate.model.EstimatePosition;
+import machineRental.MR.price.hour.model.HourPrice;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocument.model.WorkDocument;
 
@@ -45,15 +48,26 @@ public class WorkReportEntry extends WorkDocumentEntry {
 
   @NotNull
   @Column
-  private int workQuantity;
+  private double workQuantity;
 
   @NotNull
   @Column
   private String measureUnit;
 
   @NotNull
-  @Column
-  private String mpk;
+  @ManyToOne
+  @JoinColumn(name = "hourPrice_id")
+  private HourPrice hourPrice;
+
+  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "estimatePosition_id")
+  private EstimatePosition estimatePosition;
+
+  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "code_id")
+  private CostCode costCode;
 
   @NotNull
   @Column

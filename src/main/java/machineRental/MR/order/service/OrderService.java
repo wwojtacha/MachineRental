@@ -4,7 +4,7 @@ import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.DeleteException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.order.model.Order;
-import machineRental.MR.price.model.Price;
+import machineRental.MR.price.rental.model.Price;
 import machineRental.MR.repository.OrderRepository;
 import machineRental.MR.repository.PriceRepository;
 import machineRental.MR.order.ErrorOrder;
@@ -106,9 +106,9 @@ public class OrderService {
   }
 
   private void setOrderDetailsForDayPriceType(Order order, long daysOfRental, int orderQuantity) {
-//    BigDecimal price = getPriceFromDb(order).getPrice();
+//    BigDecimal sellPrice = getPriceFromDb(order).getSellPrice();
 
-//    order.setPrice(price);
+//    order.setSellPrice(sellPrice);
     BigDecimal price = order.getPrice();
     order.setValue(price.multiply(new BigDecimal(daysOfRental)).multiply(new BigDecimal(orderQuantity)));
     order.setDbPrice(true);
@@ -120,8 +120,8 @@ public class OrderService {
       errorOrder.wrongFebruaryPriceTypeError(bindingResult);
     }
 
-//    BigDecimal price = getPriceFromDb(order).getPrice();
-//    order.setPrice(price);
+//    BigDecimal sellPrice = getPriceFromDb(order).getSellPrice();
+//    order.setSellPrice(sellPrice);
     BigDecimal price = order.getPrice();
     order.setValue(price.multiply(new BigDecimal(orderQuantity)));
     order.setDbPrice(true);
@@ -129,16 +129,16 @@ public class OrderService {
 
   private void setOrderDetailsForWeekPriceType(Order order, long daysOfRental, int orderQuantity) {
     double weeksOfRental = Math.round(((double) daysOfRental / 7) * 10d) / 10d;
-//    BigDecimal price = getPriceFromDb(order).getPrice();
-//    order.setPrice(price);
+//    BigDecimal sellPrice = getPriceFromDb(order).getSellPrice();
+//    order.setSellPrice(sellPrice);
     BigDecimal price = order.getPrice();
     order.setValue(price.multiply(new BigDecimal(weeksOfRental)).multiply(new BigDecimal(orderQuantity)));
     order.setDbPrice(true);
   }
 
   private void setOrderDetailForMonthPriceType(Order order, double monthsOfRental, int orderQuantity) {
-//    BigDecimal price = getPriceFromDb(order).getPrice();
-//    order.setPrice(price);
+//    BigDecimal sellPrice = getPriceFromDb(order).getSellPrice();
+//    order.setSellPrice(sellPrice);
 
     BigDecimal price = order.getPrice();
     order.setValue(price.multiply(new BigDecimal(monthsOfRental)).multiply(new BigDecimal(orderQuantity)));
@@ -156,7 +156,7 @@ public class OrderService {
     Optional<Price> dbPrice = priceRepository.findById(priceId);
 
     if (!dbPrice.isPresent()) {
-      throw new NotFoundException("Price for year: " + priceYear + " and machine internal id: " + machineInternalId + " and price type " + priceType + " does not exist");
+      throw new NotFoundException("Price for year: " + priceYear + " and machine internal id: " + machineInternalId + " and sellPrice type " + priceType + " does not exist");
     } else {
       return dbPrice.get();
     }

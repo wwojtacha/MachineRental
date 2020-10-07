@@ -20,7 +20,7 @@ public class Client {
     private String mpk;
 
     @NotBlank(message = "Client name is required.")
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @NotBlank(message = "Client city is required.")

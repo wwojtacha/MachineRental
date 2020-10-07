@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/workDocuments")
 public class WorkDocumentController {
@@ -47,9 +47,11 @@ public class WorkDocumentController {
       @RequestParam(name = "date", required = false) LocalDate date,
       @RequestParam(name = "operatorName", required = false, defaultValue = "") String operatorName,
       @RequestParam(name = "machineInternalId", required = false, defaultValue = "") String machineInternalId,
+      @RequestParam(name = "delegation", required = false, defaultValue = "") String delegation,
+      @RequestParam(name = "invoiceNumber", required = false, defaultValue = "") String invoiceNumber,
       Pageable pageable) {
 
-    return workDocumentService.search(id, documentType, date, operatorName, machineInternalId, pageable);
+    return workDocumentService.search(id, documentType, date, operatorName, machineInternalId, delegation, invoiceNumber, pageable);
   }
 
   @GetMapping("/{id}")

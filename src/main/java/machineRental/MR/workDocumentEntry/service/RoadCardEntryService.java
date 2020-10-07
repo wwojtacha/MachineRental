@@ -1,13 +1,20 @@
 package machineRental.MR.workDocumentEntry.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.transaction.Transactional;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
+import machineRental.MR.price.PriceType;
+import machineRental.MR.price.distance.model.DistancePrice;
+import machineRental.MR.price.distance.service.DistancePriceService;
+import machineRental.MR.workDocument.model.WorkDocument;
+import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.repository.RoadCardEntryRepository;
 import machineRental.MR.workDocumentEntry.WorkDocumentEntryForValidation;
@@ -30,15 +37,16 @@ public class RoadCardEntryService {
   @Autowired
   private WorkDocumentEntryHelper workDocumentHelper;
 
+  @Autowired
+  private DistancePriceService distancePriceService;
+
+  @Autowired
+  WorkDocumentEntryValidator workDocumentEntryValidator;
+
 
   public List<RoadCardEntry> create(List<RoadCardEntry> roadCardEntries, BindingResult bindingResult) {
 
-    Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation = WorkDocumentEntryForValidation.fromRoadCardEntries(roadCardEntries);
-
-    Collection<WorkDocumentEntryForValidation> allWorkDocumentEntriesForValidation = getAllWorkDocumentEntriesForValidation(roadCardEntries, workDocumentEntriesForValidation);
-
-    WorkDocumentEntryValidator workDocumentEntryValidator = new WorkDocumentEntryValidator();
-    workDocumentEntryValidator.validateWorkingTime(workDocumentEntriesForValidation, allWorkDocumentEntriesForValidation, bindingResult);
+    checkWorkingTime(roadCardEntries, bindingResult);
 
     for (RoadCardEntry roadCardEntry : roadCardEntries) {
 
@@ -65,7 +73,16 @@ public class RoadCardEntryService {
     return roadCardEntries;
   }
 
-  private Collection<WorkDocumentEntryForValidation> getAllWorkDocumentEntriesForValidation(List<RoadCardEntry> roadCardEntries, Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation ) {
+  public void checkWorkingTime(List<RoadCardEntry> roadCardEntries, BindingResult bindingResult) {
+    Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation = WorkDocumentEntryForValidation.fromRoadCardEntries(roadCardEntries);
+
+    Collection<WorkDocumentEntryForValidation> allWorkDocumentEntriesForValidation = getAllWorkDocumentEntriesForValidation(roadCardEntries, workDocumentEntriesForValidation);
+
+    workDocumentEntryValidator.validateWorkingTime(workDocumentEntriesForValidation, allWorkDocumentEntriesForValidation, bindingResult);
+  }
+
+  private Collection<WorkDocumentEntryForValidation> getAllWorkDocumentEntriesForValidation(List<RoadCardEntry> roadCardEntries,
+      Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation) {
     Set<RoadCardEntry> dbRoadCardEntries = getDbRoadCardEntries(roadCardEntries);
     Collection<WorkDocumentEntryForValidation> dbRoadCardEntriesForValidation = WorkDocumentEntryForValidation.fromRoadCardEntries(dbRoadCardEntries);
 
@@ -99,18 +116,19 @@ public class RoadCardEntryService {
   }
 
   private void validateRoadCardEntryIdConsistency(Long id, Long currentId, BindingResult bindingResult) {
-    if(roadCardEntryRepository.existsById(id) && !id.equals(currentId)) {
+    if (roadCardEntryRepository.existsById(id) && !id.equals(currentId)) {
       bindingResult.addError(new FieldError(
           "roadCardEntry",
           "id",
           String.format("Road card entry with id: \'%s\' already exists", id)));
     }
 
-    if(bindingResult.hasErrors()) {
+    if (bindingResult.hasErrors()) {
       throw new BindingResultException(bindingResult);
     }
   }
 
+  @Transactional
   public void deleteByWorkDocument(String workDocumentId) {
 
     List<RoadCardEntry> roadCardEntries = roadCardEntryRepository.findAllByWorkDocument_Id(workDocumentId);
@@ -133,7 +151,45 @@ public class RoadCardEntryService {
     roadCardEntryRepository.deleteById(id);
   }
 
+  public void checkPrices(WorkDocument dbWorkDocument, WorkDocument editedWorkDocument) {
+    String documentNumber = dbWorkDocument.getId();
+    LocalDate editedDate = editedWorkDocument.getDate();
+
+    List<RoadCardEntry> roadCardEntries = roadCardEntryRepository.findAllByWorkDocument_Id(documentNumber);
+
+    for (RoadCardEntry roadCardEntry : roadCardEntries) {
+      String editedMachineNumber = editedWorkDocument.getMachine().getInternalId();
+      List<DistancePrice> matchingPrices = distancePriceService.getMatchingPrices(editedMachineNumber, editedDate);
+
+      boolean isMatchingPrice = false;
+
+      MATCHING_PRICES:
+      for (DistancePrice matchingPrice : matchingPrices) {
+
+        DistancePrice distancePrice = roadCardEntry.getDistancePrice();
+
+        if (distancePriceService.isPriceMatching(editedDate, distancePrice, matchingPrice, editedMachineNumber)) {
+          roadCardEntry.setDistancePrice(matchingPrice);
+          isMatchingPrice = true;
+          break MATCHING_PRICES;
+        }
+      }
+
+      WorkCode workCode = roadCardEntry.getWorkCode();
+      PriceType priceType = roadCardEntry.getDistancePrice().getPriceType();
+
+      if (!isMatchingPrice) {
+        throw new NotFoundException(String.format("There is no distance price matching editedDate %s and price parameters: %s, %s, %s.", editedDate, workCode, editedMachineNumber, priceType));
+      }
+
+    }
+  }
+
+  public List<RoadCardEntry> getWorkReportEntriesByDistancePrice(Long priceId) {
+    return roadCardEntryRepository.findAllByDistancePrice_Id(priceId);
+  }
 }
+
 
 
 

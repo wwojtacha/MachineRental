@@ -16,4 +16,8 @@ public interface RoadCardEntryRepository extends JpaRepository<RoadCardEntry, Lo
   List<RoadCardEntry> findAllByWorkDocument_Id(String workDocumentId);
 
   void deleteByWorkDocument_Id(String workDocumentId);
+
+  boolean existsByDistancePrice_Id(Long priceId);
+
+  List<RoadCardEntry> findAllByDistancePrice_Id(Long priceId);
 }

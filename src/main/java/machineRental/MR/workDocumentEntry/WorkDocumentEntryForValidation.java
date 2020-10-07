@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.Data;
+import machineRental.MR.costcode.model.CostCode;
+import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.model.WorkDocumentEntry;
@@ -21,7 +23,9 @@ public class WorkDocumentEntryForValidation {
 
   private LocalTime endHour;
 
-  private String mpk;
+  private EstimatePosition estimatePosition;
+
+  private CostCode costCode;
 
   private String acceptingPerson;
 
@@ -35,7 +39,8 @@ public class WorkDocumentEntryForValidation {
     workDocumentEntryForValidation.setWorkCode(workReportEntry.getWorkCode());
     workDocumentEntryForValidation.setStartHour(workReportEntry.getStartHour());
     workDocumentEntryForValidation.setEndHour(workReportEntry.getEndHour());
-    workDocumentEntryForValidation.setMpk(workReportEntry.getMpk());
+    workDocumentEntryForValidation.setEstimatePosition(workReportEntry.getEstimatePosition());
+    workDocumentEntryForValidation.setCostCode(workReportEntry.getCostCode());
     workDocumentEntryForValidation.setAcceptingPerson(workReportEntry.getAcceptingPerson());
     workDocumentEntryForValidation.setWorkDocument(workReportEntry.getWorkDocument());
 

@@ -11,15 +11,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("/")
+//@RequestMapping("/")
 public class LoginController {
 
   @Autowired
@@ -31,10 +29,10 @@ public class LoginController {
   @Autowired
   private JwtUtil jwtUtil;
 
-  @GetMapping
-  public String login() {
-    return "You have successfully logged in";
-  }
+//  @GetMapping
+//  public String login() {
+//    return "You have successfully logged in";
+//  }
 
   @PostMapping("/authenticate")
   public ResponseEntity createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {

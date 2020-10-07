@@ -9,8 +9,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
+import machineRental.MR.costcode.model.CostCode;
+import machineRental.MR.estimate.model.EstimatePosition;
+import machineRental.MR.material.model.Material;
+import machineRental.MR.price.distance.model.DistancePrice;
 import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.WorkCode;
 
@@ -40,8 +45,9 @@ public class RoadCardEntry extends WorkDocumentEntry {
   private String loadingPlace;
 
   @NotNull
-  @Column
-  private String materialType;
+  @ManyToOne
+  @JoinColumn(name = "material_id")
+  private Material material;
 
   @NotNull
   @Column
@@ -49,15 +55,30 @@ public class RoadCardEntry extends WorkDocumentEntry {
 
   @NotNull
   @Column
-  private int quantity;
+  private double quantity;
+
+  @NotEmpty
+  @Column
+  private String measureUnit;
 
   @NotNull
   @Column
-  private int distance;
+  private double distance;
 
   @NotNull
-  @Column
-  private String mpk;
+  @ManyToOne
+  @JoinColumn(name = "distancePrice_id")
+  private DistancePrice distancePrice;
+
+  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "estimatePosition_id")
+  private EstimatePosition estimatePosition;
+
+  @NotNull
+  @ManyToOne
+  @JoinColumn(name = "code_id")
+  private CostCode costCode;
 
   @NotNull
   @Column

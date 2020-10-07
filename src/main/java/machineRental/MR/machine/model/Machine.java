@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import machineRental.MR.client.model.Client;
 import machineRental.MR.machineType.model.MachineType;
 
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class Machine {
 
     @NotBlank(message = "Machine reqiures its unique number!")
     @Column(nullable = false, unique = true)
-    @Size(min = 8, max = 8, message = "Machine number must be equal to 8 characters.")
+    @Size(min = 1, max = 8, message = "Machine number must be equal to 8 characters.")
     private String internalId;
 
     @NotBlank(message = "Machine must have a name.")
@@ -43,6 +44,10 @@ public class Machine {
     @Column(nullable = false)
     private Integer productionYear;
 
+    @ManyToOne
+    @JoinColumn(name = "client_id")
+    private Client owner;
+
     @NotBlank()
     @Column(nullable = false)
     @Pattern(regexp = "In use|Out of use", message = "Must use predefined type")
@@ -62,7 +67,7 @@ public class Machine {
 
 
 //    @OneToMany(mappedBy = "machine")
-//    private Price price;
+//    private Price sellPrice;
 
 
 }

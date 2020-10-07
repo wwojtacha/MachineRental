@@ -41,12 +41,12 @@ public class MachineService {
         return machineRepository.save(machine);
     }
 
-    public Page<Machine> search(String internalId, String name, String producer, String model, Integer productionYear, String machineStatus, String type, Pageable pageable) {
+    public Page<Machine> search(String internalId, String name, String producer, String model, Integer productionYear, String owner, String machineStatus, String type, Pageable pageable) {
 
         if(productionYear == null) {
-            return machineRepository.findByInternalIdContainingAndNameContainingAndProducerContainingAndModelContainingAndMachineStatusContainingAndMachineType_MachineTypeContaining(internalId, name, producer, model, machineStatus, type, pageable);
+            return machineRepository.findByInternalIdContainingAndNameContainingAndProducerContainingAndModelContainingAndOwner_NameContainingAndMachineStatusContainingAndMachineType_MachineTypeContaining(internalId, name, producer, model, owner, machineStatus, type, pageable);
         } else {
-            return machineRepository.findByInternalIdContainingAndNameContainingAndProducerContainingAndModelContainingAndProductionYearAndMachineStatusContainingAndMachineType_MachineTypeContaining(internalId, name, producer, model, productionYear, machineStatus, type, pageable);
+            return machineRepository.findByInternalIdContainingAndNameContainingAndProducerContainingAndModelContainingAndProductionYearAndOwner_NameContainingAndMachineStatusContainingAndMachineType_MachineTypeContaining(internalId, name, producer, model, productionYear, owner, machineStatus, type, pageable);
         }
     }
 

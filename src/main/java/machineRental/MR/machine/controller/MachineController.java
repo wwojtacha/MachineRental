@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:4200")
+//@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/machines")
 public class MachineController {
@@ -37,11 +37,12 @@ public class MachineController {
             @RequestParam(value = "producer", required = false, defaultValue = "") String producer,
             @RequestParam(value = "model", required = false, defaultValue = "") String model,
             @RequestParam(value = "productionYear", required = false) Integer productionYear,
+            @RequestParam(value = "owner", required = false, defaultValue = "") String owner,
             @RequestParam(value = "machineStatus", required = false, defaultValue = "") String machineStatus,
             @RequestParam(value = "machineType", required = false, defaultValue = "") String machineType,
             Pageable pageable
             ){
-        return machineService.search(internalId, name, producer, model, productionYear, machineStatus, machineType, pageable);
+        return machineService.search(internalId, name, producer, model, productionYear, owner, machineStatus, machineType, pageable);
     }
 
     @GetMapping("/{internalId}")

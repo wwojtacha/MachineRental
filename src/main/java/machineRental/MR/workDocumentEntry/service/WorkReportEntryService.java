@@ -1,5 +1,6 @@
 package machineRental.MR.workDocumentEntry.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -9,6 +10,11 @@ import java.util.Set;
 import javax.transaction.Transactional;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
+import machineRental.MR.price.PriceType;
+import machineRental.MR.price.hour.model.HourPrice;
+import machineRental.MR.price.hour.service.HourPriceService;
+import machineRental.MR.workDocument.model.WorkDocument;
+import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import machineRental.MR.repository.WorkReportEntryRepository;
@@ -20,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
-@Transactional
 @Service
 public class WorkReportEntryService {
 
@@ -32,15 +37,16 @@ public class WorkReportEntryService {
   @Autowired
   private WorkDocumentEntryHelper workDocumentHelper;
 
+  @Autowired
+  private HourPriceService hourPriceService;
+
+  @Autowired
+  WorkDocumentEntryValidator workDocumentEntryValidator;
+
 
   public List<WorkReportEntry> create(List<WorkReportEntry> workReportEntries, BindingResult bindingResult) {
 
-    Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation = WorkDocumentEntryForValidation.fromWorkReportEntries(workReportEntries);
-
-    Collection<WorkDocumentEntryForValidation> allWorkDocumentEntriesForValidation = getAllWorkDocumentEntriesForValidation(workReportEntries, workDocumentEntriesForValidation);
-
-    WorkDocumentEntryValidator workDocumentEntryValidator = new WorkDocumentEntryValidator();
-    workDocumentEntryValidator.validateWorkingTime(workDocumentEntriesForValidation, allWorkDocumentEntriesForValidation, bindingResult);
+    checkWorkingTime(workReportEntries, bindingResult);
 
     for (WorkReportEntry workReportEntry : workReportEntries) {
 
@@ -64,6 +70,14 @@ public class WorkReportEntryService {
     }
 
     return workReportEntries;
+  }
+
+  public void checkWorkingTime(List<WorkReportEntry> workReportEntries, BindingResult bindingResult) {
+    Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation = WorkDocumentEntryForValidation.fromWorkReportEntries(workReportEntries);
+
+    Collection<WorkDocumentEntryForValidation> allWorkDocumentEntriesForValidation = getAllWorkDocumentEntriesForValidation(workReportEntries, workDocumentEntriesForValidation);
+
+    workDocumentEntryValidator.validateWorkingTime(workDocumentEntriesForValidation, allWorkDocumentEntriesForValidation, bindingResult);
   }
 
   private Collection<WorkDocumentEntryForValidation> getAllWorkDocumentEntriesForValidation(List<WorkReportEntry> workReportEntries,
@@ -113,6 +127,7 @@ public class WorkReportEntryService {
     }
   }
 
+  @Transactional
   public void deleteByWorkDocument(String workDocumentId) {
 
     List<WorkReportEntry> workReportEntries = workReportEntryRepository.findAllByWorkDocument_Id(workDocumentId);
@@ -133,5 +148,43 @@ public class WorkReportEntryService {
     }
 
     workReportEntryRepository.deleteById(id);
+  }
+
+  public void checkPrices(WorkDocument dbWorkDocument, WorkDocument editedWorkDocument) {
+    String documentNumber = dbWorkDocument.getId();
+    LocalDate editedDate = editedWorkDocument.getDate();
+
+    List<WorkReportEntry> workReportEntries = workReportEntryRepository.findAllByWorkDocument_Id(documentNumber);
+
+    for (WorkReportEntry workReportEntry : workReportEntries) {
+      String editedMachineNumber = editedWorkDocument.getMachine().getInternalId();
+      List<HourPrice> matchingPrices = hourPriceService.getMatchingPrices(editedMachineNumber, editedDate);
+
+      boolean isMatchingPrice = false;
+
+      MATCHING_PRICES:
+      for (HourPrice matchingPrice : matchingPrices) {
+
+        HourPrice hourPrice = workReportEntry.getHourPrice();
+
+        if (hourPriceService.isPriceMatching(editedDate, hourPrice, matchingPrice, editedMachineNumber)) {
+          workReportEntry.setHourPrice(matchingPrice);
+          isMatchingPrice = true;
+          break MATCHING_PRICES;
+        }
+      }
+
+      WorkCode workCode = workReportEntry.getWorkCode();
+      PriceType priceType = workReportEntry.getHourPrice().getPriceType();
+
+      if (!isMatchingPrice) {
+        throw new NotFoundException(String.format("There is no hour price matching editedDate %s and price parameters: %s, %s, %s.", editedDate, workCode, editedMachineNumber, priceType));
+      }
+
+    }
+  }
+
+  public List<WorkReportEntry> getWorkReportEntriesByHourPrice(Long priceId) {
+    return workReportEntryRepository.findAllByHourPrice_Id(priceId);
   }
 }

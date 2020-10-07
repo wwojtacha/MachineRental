@@ -1,6 +1,6 @@
 package machineRental.MR.repository;
 
-import machineRental.MR.price.model.Price;
+import machineRental.MR.price.rental.model.Price;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

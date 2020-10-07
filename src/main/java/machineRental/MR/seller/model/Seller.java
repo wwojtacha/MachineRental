@@ -19,7 +19,7 @@ public class Seller {
     private String mpk;
 
     @NotBlank(message = "Seller name is required.")
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @NotBlank(message = "Seller city is required.")
