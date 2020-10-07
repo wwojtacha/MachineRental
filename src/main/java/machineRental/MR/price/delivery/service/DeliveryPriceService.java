@@ -174,7 +174,7 @@ public class DeliveryPriceService {
         if (row.getCell(6).getCellType() == Cell.CELL_TYPE_STRING) {
           String projectCode = row.getCell(6).getStringCellValue();
 
-          if (!"NOT DEFINED".equals(projectCode) && !costCodeRepository.existsByProjectCode(projectCode)) {
+          if (!costCodeRepository.existsByProjectCode(projectCode)) {
             throw new NotFoundException(String.format("Project code \'%s\' does not exist.", projectCode));
           }
 
