@@ -26,8 +26,15 @@ public class CostCode {
   @Column(nullable = false)
   private String costType;
 
+  @NotEmpty(message = "Project code description is required.")
+  @Column(nullable = false)
+  private String projectCodeDescription;
+
+  @NotEmpty(message = "Type of cost description is required.")
+  @Column(nullable = false)
+  private String costTypeDescription;
+
   @NotEmpty
   @Column(nullable = false, unique = true)
   private String fullCode = "default";
-
 }
