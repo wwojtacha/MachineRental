@@ -39,12 +39,13 @@ public class DeliveryDocumentController {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public Page<DeliveryDocumentDto> search(
+      @RequestParam(name = "contractorName", required = false, defaultValue = "") String contractorName,
       @RequestParam(name = "documentNumber", required = false, defaultValue = "") String documentNumber,
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
       @RequestParam(value = "date", required = false) LocalDate date,
       Pageable pageable) {
 
-    return deliveryDocumentService.search(documentNumber, date, pageable);
+    return deliveryDocumentService.search(contractorName, documentNumber, date, pageable);
   }
 
   @PutMapping("/{id}")

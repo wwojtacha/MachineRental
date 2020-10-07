@@ -3,6 +3,7 @@ package machineRental.MR.delivery.document.service;
 import java.time.LocalDate;
 import java.util.Optional;
 import javax.transaction.Transactional;
+import machineRental.MR.client.model.Client;
 import machineRental.MR.delivery.document.model.DeliveryDocument;
 import machineRental.MR.delivery.document.model.DeliveryDocumentDto;
 import machineRental.MR.delivery.entry.service.DeliveryDocumentEntryService;
@@ -28,7 +29,7 @@ public class DeliveryDocumentService {
 
   public DeliveryDocumentDto create(DeliveryDocumentDto deliveryDocumentDto, BindingResult bindingResult) {
 
-    validateDeliveryDocumentConsistency(deliveryDocumentDto.getDocumentNumber(), null, bindingResult);
+    validateDeliveryDocumentConsistency(convertToEntity(deliveryDocumentDto), null, bindingResult);
 
     DeliveryDocument deliveryDocument = convertToEntity(deliveryDocumentDto);
     deliveryDocumentRepository.save(deliveryDocument);
@@ -38,9 +39,10 @@ public class DeliveryDocumentService {
 
   private DeliveryDocument convertToEntity(DeliveryDocumentDto deliveryDocumentDto) {
     Long id = deliveryDocumentDto.getId();
+    Client contractor = deliveryDocumentDto.getContractor();
     String documentNumber = deliveryDocumentDto.getDocumentNumber();
     LocalDate date = deliveryDocumentDto.getDate();
-    DeliveryDocument deliveryDocument = new DeliveryDocument(id, documentNumber, date);
+    DeliveryDocument deliveryDocument = new DeliveryDocument(id, contractor, documentNumber, date);
 
     return deliveryDocument;
   }
@@ -48,22 +50,23 @@ public class DeliveryDocumentService {
   private DeliveryDocumentDto convertToDto(DeliveryDocument deliveryDocument) {
 
     Long id = deliveryDocument.getId();
+    Client contractor = deliveryDocument.getContractor();
     String documentNumber = deliveryDocument.getDocumentNumber();
     LocalDate date = deliveryDocument.getDate();
 
-    DeliveryDocumentDto deliveryDocumentDto = new DeliveryDocumentDto(id, documentNumber, date);
+    DeliveryDocumentDto deliveryDocumentDto = new DeliveryDocumentDto(id, contractor, documentNumber, date);
 
     return deliveryDocumentDto;
   }
 
-  public Page<DeliveryDocumentDto> search(String documentNumber, LocalDate date, Pageable pageable) {
+  public Page<DeliveryDocumentDto> search(String contractorName, String documentNumber, LocalDate date, Pageable pageable) {
 
     Page<DeliveryDocument> deliveryDocuments;
 
     if (date == null) {
-      deliveryDocuments = deliveryDocumentRepository.findByDocumentNumberContaining(documentNumber, pageable);
+      deliveryDocuments = deliveryDocumentRepository.findByContractor_NameContainingAndDocumentNumberContaining(contractorName, documentNumber, pageable);
     } else {
-      deliveryDocuments = deliveryDocumentRepository.findByDocumentNumberContainingAndDateEquals(documentNumber, date, pageable);
+      deliveryDocuments = deliveryDocumentRepository.findByContractor_NameContainingAndDocumentNumberContainingAndDateEquals(contractorName, documentNumber, date, pageable);
     }
 
     return deliveryDocuments.map(this::convertToDto);
@@ -75,9 +78,8 @@ public class DeliveryDocumentService {
       throw new NotFoundException(String.format("Delivery document with number: \'%s\' does not exist", deliveryDocumentDto.getDocumentNumber()));
     }
 
-    validateDeliveryDocumentConsistency(deliveryDocumentDto.getDocumentNumber(), dbDeliveryDocument.get().getDocumentNumber(), bindingResult);
-
     DeliveryDocument deliveryDocument = convertToEntity(deliveryDocumentDto);
+    validateDeliveryDocumentConsistency(deliveryDocument, dbDeliveryDocument.get(), bindingResult);
 
     deliveryDocumentEntryService.updateDeliveryDocumentEntryRegardingChangedDate(dbDeliveryDocument.get(), deliveryDocument);
 
@@ -86,12 +88,27 @@ public class DeliveryDocumentService {
     return convertToDto(deliveryDocument);
   }
 
-  private void validateDeliveryDocumentConsistency(String documentNumber, String currentDocumentNumber, BindingResult bindingResult) {
-    if(deliveryDocumentRepository.existsByDocumentNumber(documentNumber) && !documentNumber.equals(currentDocumentNumber)) {
+  private void validateDeliveryDocumentConsistency(DeliveryDocument editedDeliveryDocument, DeliveryDocument existingDeliveryDocument, BindingResult bindingResult) {
+
+    Client editedDeliveryDocumentContractor = editedDeliveryDocument.getContractor();
+    String editedDeliveryDocumentNumber = editedDeliveryDocument.getDocumentNumber();
+
+
+    Client existingDeliveryDocumentContractor = new Client();
+    String existingDeliveryDocumentNumber = "";
+
+    if (existingDeliveryDocument != null) {
+      existingDeliveryDocumentContractor = existingDeliveryDocument.getContractor();
+      existingDeliveryDocumentNumber = existingDeliveryDocument.getDocumentNumber();
+    }
+
+    if(deliveryDocumentRepository.existsByContractorAndDocumentNumber(editedDeliveryDocumentContractor, editedDeliveryDocumentNumber)
+        && (!editedDeliveryDocumentNumber.equals(existingDeliveryDocumentNumber)
+        || !editedDeliveryDocumentContractor.equals(existingDeliveryDocumentContractor))) {
       bindingResult.addError(new FieldError(
           "DeliveryDocument",
           "documentNumber",
-          String.format("Delivery document with number: \'%s\' already exists", documentNumber)));
+          String.format("Delivery document for contractor %s and number: \'%s\' already exists", editedDeliveryDocumentContractor.getName(), editedDeliveryDocumentNumber)));
     }
 
     if(bindingResult.hasErrors()) {
