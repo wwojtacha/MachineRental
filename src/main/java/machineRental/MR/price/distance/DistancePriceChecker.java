@@ -8,14 +8,12 @@ import machineRental.MR.price.PriceType;
 import machineRental.MR.price.distance.model.DistancePrice;
 import machineRental.MR.price.distance.service.DateChecker;
 import machineRental.MR.price.hour.exception.OverlappingDatesException;
-import machineRental.MR.repository.DeliveryDocumentEntryRepository;
 import machineRental.MR.repository.DistancePriceRepository;
 import machineRental.MR.repository.RoadCardEntryRepository;
 import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.geo.Distance;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -43,13 +41,13 @@ public class DistancePriceChecker implements PriceChecker {
       WorkDocument workDocument = roadCardEntires.iterator().next().getWorkDocument();
       machineInternalId = workDocument.getMachine().getInternalId();
     }
-    checkHourPriceUniquness(currentDistancePrice, editedDistancePrice, machineInternalId);
+    checkDistancePriceUniquness(currentDistancePrice, editedDistancePrice, machineInternalId);
 
-    checkHourPriceMatch(editedDistancePrice, roadCardEntires);
+    checkDistancePriceMatch(editedDistancePrice, roadCardEntires);
 //    no exception thrown upto now so edited price can be updated
   }
 
-  private void checkHourPriceUniquness(DistancePrice currentDistancePrice, DistancePrice editedDistancePrice, String machineInternalId) {
+  private void checkDistancePriceUniquness(DistancePrice currentDistancePrice, DistancePrice editedDistancePrice, String machineInternalId) {
     //    uniqueness of editedDistancePrice needs to be checked ony against existing hour prices for a given machine. All prices for different machines will be unique by definition.
     List<DistancePrice> distancePricesByMachine = distancePriceRepository.findByMachineInternalIdEquals(machineInternalId);
 
@@ -91,7 +89,7 @@ public class DistancePriceChecker implements PriceChecker {
 
   }
 
-  private void checkHourPriceMatch(DistancePrice editedDistancePrice, List<RoadCardEntry> roadCardEntires) {
+  private void checkDistancePriceMatch(DistancePrice editedDistancePrice, List<RoadCardEntry> roadCardEntires) {
     for (RoadCardEntry roadCardEntry : roadCardEntires) {
 
       if (!isPriceMatching(roadCardEntry, editedDistancePrice)) {

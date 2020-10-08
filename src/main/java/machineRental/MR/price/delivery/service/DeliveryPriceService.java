@@ -213,7 +213,7 @@ public class DeliveryPriceService {
           continue;
         }
 
-        if (!isPriceUnique(checkedPrice, price)) {
+        if (!deliveryPriceChecker.isPriceUnique(checkedPrice, price)) {
           isUnique = false;
           throw new OverlappingDatesException(String.format("Delivery price for a given contractor (%s), material (%s), price type (%s) and project code (%s) cannot overlap in time with the same entry.",
               checkedPrice.getContractor().getMpk(), checkedPrice.getMaterial().getType(), checkedPrice.getPriceType().toString(), checkedPrice.getProjectCode()));
@@ -222,14 +222,6 @@ public class DeliveryPriceService {
     }
 
     return isUnique;
-  }
-
-  public boolean isPriceUnique(DeliveryPrice newPrice, DeliveryPrice price) {
-    return !newPrice.getContractor().equals(price.getContractor())
-        || !newPrice.getMaterial().equals(price.getMaterial())
-        || newPrice.getPriceType() != price.getPriceType()
-        || !newPrice.getProjectCode().equals(price.getProjectCode())
-        || !dateChecker.areDatesOverlapping(newPrice, price);
   }
 
   public DeliveryPrice convertToEntity(DeliveryPriceDto deliveryPriceDto) {
@@ -261,25 +253,27 @@ public class DeliveryPriceService {
     return deliveryPriceDto;
   }
 
-  public DeliveryPriceDto update(Long id, DeliveryPriceDto deliveryPriceDto) {
+  public DeliveryPriceDto update(Long id, DeliveryPriceDto editedDeliveryPriceDto) {
 
     Optional<DeliveryPrice> dbPriceOptional = deliveryPriceRepository.findById(id);
     if (!dbPriceOptional.isPresent()) {
       throw new NotFoundException(String.format("Delivery price with id \'%s\' doesn`t exist.", id));
     }
 
-    DeliveryPrice deliveryPrice = convertToEntity(deliveryPriceDto);
+    DeliveryPrice editedDeliveryPrice = convertToEntity(editedDeliveryPriceDto);
 
-    if (!isOnlyPriceValueDifferent(dbPriceOptional.get(), deliveryPrice)) {
-      deliveryPriceChecker.checkPriceUsage(id);
-    }
+//    if (!isOnlyPriceValueDifferent(dbPriceOptional.get(), editedDeliveryPrice)) {
+//      deliveryPriceChecker.checkPriceUsage(id);
+//    }
 
-    validateDeliveryPriceConsistency(id, deliveryPrice);
+    validateDeliveryPriceConsistency(id, editedDeliveryPrice);
 
-    deliveryPrice.setId(id);
-    deliveryPriceRepository.save(deliveryPrice);
+    deliveryPriceChecker.checkEditability(id, dbPriceOptional.get(), editedDeliveryPrice);
 
-    return convertToDto(deliveryPrice);
+    editedDeliveryPrice.setId(id);
+    deliveryPriceRepository.save(editedDeliveryPrice);
+
+    return convertToDto(editedDeliveryPrice);
   }
 
   private boolean isOnlyPriceValueDifferent (DeliveryPrice dbPrice, DeliveryPrice editedPrice) {
@@ -309,7 +303,7 @@ public class DeliveryPriceService {
         continue;
       }
 
-      if (!isPriceUnique(editedPrice, dbPrice)) {
+      if (!deliveryPriceChecker.isPriceUnique(editedPrice, dbPrice)) {
         isUnique = false;
         throw new OverlappingDatesException(
             String.format("Delivery price for a given contractor (%s), material (%s), price type (%s) and project code (%s) cannot overlap in time with the same entry.",
@@ -398,7 +392,7 @@ public class DeliveryPriceService {
             continue;
           }
 
-          if (!isPriceUnique(editedDeliveryPrice, dbDelievryPrice)) {
+          if (!deliveryPriceChecker.isPriceUnique(editedDeliveryPrice, dbDelievryPrice)) {
             throw new OverlappingDatesException("Edited delivery price cannot overlap in time with the same entry.");
           }
         }
@@ -410,7 +404,7 @@ public class DeliveryPriceService {
             continue;
           }
 
-          if (!isPriceUnique(newDeliveryPrice, dbDeliveryPrice)) {
+          if (!deliveryPriceChecker.isPriceUnique(newDeliveryPrice, dbDeliveryPrice)) {
             throw new OverlappingDatesException("New delivery price cannot overlap in time with the same entry.");
           }
         }

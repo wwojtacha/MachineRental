@@ -29,4 +29,6 @@ public interface DeliveryPriceRepository extends JpaRepository<DeliveryPrice, Lo
       );
 
   List<DeliveryPrice> findAllByContractor(Client newDeliveryPriceContractor);
+
+  List<DeliveryPrice> findByContractor_Mpk(String contractorMpk);
 }
