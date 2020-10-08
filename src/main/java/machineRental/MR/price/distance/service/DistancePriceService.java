@@ -14,6 +14,7 @@ import java.util.Optional;
 import machineRental.MR.excel.ExcelHelper;
 import machineRental.MR.excel.WrongDataTypeException;
 import machineRental.MR.exception.NotFoundException;
+import machineRental.MR.machine.model.Machine;
 import machineRental.MR.price.distance.DistancePriceChecker;
 import machineRental.MR.price.distance.exception.OverlappingDistanceRangesException;
 import machineRental.MR.price.distance.model.DistancePrice;
@@ -111,7 +112,9 @@ public class DistancePriceService {
           if (!machineRepository.existsByInternalId(machineInternalId)) {
             throw new NotFoundException(String.format("Machine with internal ID \'%s\' does not exist.", machineInternalId));
           }
-          distancePrice.setMachineInternalId(machineInternalId);
+
+          Machine machine = machineRepository.findByInternalId(machineInternalId);
+          distancePrice.setMachine(machine);
         } else {
           throw new WrongDataTypeException("Wrong data type in column \'machineInternalId\'. It must be a string (text)!");
         }
@@ -216,7 +219,7 @@ public class DistancePriceService {
         if (!distancePriceChecker.isPriceUnique(checkedPrice, price)) {
           isUnique = false;
           throw new OverlappingDatesException(String.format("Distance price for a given work code (%s), machine (%s) and price type (%s) cannot overlap in time with the same entry",
-              checkedPrice.getWorkCode().toString(), checkedPrice.getMachineInternalId(), checkedPrice.getPriceType().toString()));
+              checkedPrice.getWorkCode().toString(), checkedPrice.getMachine().getInternalId(), checkedPrice.getPriceType().toString()));
         }
 
       }
@@ -247,7 +250,7 @@ public class DistancePriceService {
 
   private boolean isOnlyPriceValueDifferent(DistancePrice dbPrice, DistancePrice editedPrice) {
     return dbPrice.getWorkCode() == editedPrice.getWorkCode()
-        && dbPrice.getMachineInternalId().equals(editedPrice.getMachineInternalId())
+        && dbPrice.getMachine().getInternalId().equals(editedPrice.getMachine().getInternalId())
         && dbPrice.getPriceType() == editedPrice.getPriceType()
         && dbPrice.getRangeMin() == editedPrice.getRangeMin()
         && dbPrice.getRangeMax() == editedPrice.getRangeMax()
@@ -263,7 +266,7 @@ public class DistancePriceService {
 
     if (!isPriceUnique(id, distancePrice)) {
       throw new OverlappingDatesException(String.format("Distance price for a given work code (%s), machine (%s) and price type (%s) cannot overlap in time with the same entry.",
-          distancePrice.getWorkCode().toString(), distancePrice.getMachineInternalId(), distancePrice.getPriceType().toString()));
+          distancePrice.getWorkCode().toString(), distancePrice.getMachine().getInternalId(), distancePrice.getPriceType().toString()));
     }
   }
 
@@ -281,7 +284,7 @@ public class DistancePriceService {
         isUnique = false;
         throw new OverlappingDatesException(
             String.format("Distance price for a given work code (%s), machine number (%s), price type (%s) cannot overlap in time with the same entry.",
-                editedPrice.getWorkCode(), editedPrice.getMachineInternalId(), editedPrice.getPriceType().toString()));
+                editedPrice.getWorkCode(), editedPrice.getMachine().getInternalId(), editedPrice.getPriceType().toString()));
       }
 
     }
@@ -320,7 +323,7 @@ public class DistancePriceService {
 
   public boolean isPriceMatching(LocalDate date, DistancePrice newPrice, DistancePrice matchingPrice, String editedMachineNumber) {
     return newPrice.getWorkCode() == matchingPrice.getWorkCode()
-        && editedMachineNumber.equals(matchingPrice.getMachineInternalId())
+        && editedMachineNumber.equals(matchingPrice.getMachine().getInternalId())
         && newPrice.getPriceType() == matchingPrice.getPriceType()
         && newPrice.getProjectCode().equals(matchingPrice.getProjectCode())
         && (date.isAfter(matchingPrice.getStartDate()) || date.isEqual(matchingPrice.getStartDate()))
@@ -356,7 +359,7 @@ public class DistancePriceService {
 //    }
 
     List<RoadCardEntry> roadCardEntries = roadCardEntryService.getWorkReportEntriesByDistancePrice(id);
-    String newDistancePriceMachineInternalId = newDistancePrice.getMachineInternalId();
+    String newDistancePriceMachineInternalId = newDistancePrice.getMachine().getInternalId();
     List<DistancePrice> allDistancePricesByMachineInternalId = distancePriceRepository.findAllByMachineInternalId(newDistancePriceMachineInternalId);
 
     for (RoadCardEntry roadCardEntry : roadCardEntries) {

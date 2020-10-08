@@ -10,11 +10,14 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
+import machineRental.MR.machine.model.Machine;
 import machineRental.MR.price.distance.service.DateCheckerObject;
 import machineRental.MR.price.PriceType;
 import machineRental.MR.workDocumentEntry.WorkCode;
@@ -33,9 +36,10 @@ public class DistancePrice extends DateCheckerObject {
     @Column(nullable = false)
     private WorkCode workCode;
 
-    @NotEmpty(message = "Machine internal ID is required.")
-    @Column(nullable = false)
-    private String machineInternalId;
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "machine_id")
+    private Machine machine;
 
     @NotNull(message = "Price type is required.")
     @Column(nullable = false)

@@ -63,7 +63,7 @@ public class DistancePriceChecker implements PriceChecker {
         throw new OverlappingDatesException(
             String.format("Distance price for a given work code (%s), machine number (%s), price type (%s), distance ranges %s - %s cannot overlap in time with the same entry.",
                 editedDistancePrice.getWorkCode(),
-                editedDistancePrice.getMachineInternalId(),
+                editedDistancePrice.getMachine().getInternalId(),
                 editedDistancePrice.getPriceType(),
                 editedDistancePrice.getRangeMin(),
                 editedDistancePrice.getRangeMax()));
@@ -73,7 +73,7 @@ public class DistancePriceChecker implements PriceChecker {
 
   public boolean isPriceUnique(DistancePrice newPrice, DistancePrice price) {
     return newPrice.getWorkCode() != price.getWorkCode()
-        || !newPrice.getMachineInternalId().equals(price.getMachineInternalId())
+        || !newPrice.getMachine().getInternalId().equals(price.getMachine().getInternalId())
         || newPrice.getPriceType() != price.getPriceType()
         || !newPrice.getProjectCode().equals(price.getProjectCode())
         || !dateChecker.areDatesOverlapping(newPrice, price)
@@ -122,7 +122,7 @@ public class DistancePriceChecker implements PriceChecker {
     String machineInternalId = workDocument.getMachine().getInternalId();
 
     return roadCardEntry.getWorkCode() == editedDistancePrice.getWorkCode()
-        && machineInternalId.equals(editedDistancePrice.getMachineInternalId())
+        && machineInternalId.equals(editedDistancePrice.getMachine().getInternalId())
         && roadCardEntry.getDistancePrice().getPriceType() == editedDistancePrice.getPriceType()
         && roadCardEntry.getEstimatePosition().getCostCode().getProjectCode().equals(editedDistancePrice.getProjectCode())
         && isDistanceMatching(roadCardEntry.getDistance(), editedDistancePrice)
