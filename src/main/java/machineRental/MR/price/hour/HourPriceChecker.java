@@ -60,14 +60,14 @@ public class HourPriceChecker implements PriceChecker {
       if (!isPriceUnique(editedHourPrice, hourPriceByMachine)) {
         throw new OverlappingDatesException(
             String.format("Hour price for a given work code (%s), machine number (%s), price type (%s) cannot overlap in time with the same entry.",
-                editedHourPrice.getWorkCode(), editedHourPrice.getMachineInternalId(), editedHourPrice.getPriceType().toString()));
+                editedHourPrice.getWorkCode(), editedHourPrice.getMachine().getInternalId(), editedHourPrice.getPriceType().toString()));
       }
     }
   }
 
   public boolean isPriceUnique(HourPrice newPrice, HourPrice price) {
     return newPrice.getWorkCode() != price.getWorkCode()
-        || !newPrice.getMachineInternalId().equals(price.getMachineInternalId())
+        || !newPrice.getMachine().getInternalId().equals(price.getMachine().getInternalId())
         || newPrice.getPriceType() != price.getPriceType()
         || !newPrice.getProjectCode().equals(price.getProjectCode())
         || !dateChecker.areDatesOverlapping(newPrice, price);
@@ -102,7 +102,7 @@ public class HourPriceChecker implements PriceChecker {
     String machineInternalId = workDocument.getMachine().getInternalId();
 
     return workReportEntry.getWorkCode() == editedHourPrice.getWorkCode()
-        && machineInternalId.equals(editedHourPrice.getMachineInternalId())
+        && machineInternalId.equals(editedHourPrice.getMachine().getInternalId())
         && workReportEntry.getHourPrice().getPriceType() == editedHourPrice.getPriceType()
         && workReportEntry.getEstimatePosition().getCostCode().getProjectCode().equals(editedHourPrice.getProjectCode())
         && (date.isAfter(editedHourPrice.getStartDate()) || date.isEqual(editedHourPrice.getStartDate()))

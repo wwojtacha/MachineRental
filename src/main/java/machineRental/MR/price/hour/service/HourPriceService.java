@@ -14,6 +14,7 @@ import java.util.Optional;
 import machineRental.MR.excel.ExcelHelper;
 import machineRental.MR.excel.WrongDataTypeException;
 import machineRental.MR.exception.NotFoundException;
+import machineRental.MR.machine.model.Machine;
 import machineRental.MR.price.hour.HourPriceChecker;
 import machineRental.MR.price.distance.service.DateChecker;
 import machineRental.MR.price.PriceType;
@@ -111,7 +112,9 @@ public class HourPriceService {
           if (!machineRepository.existsByInternalId(machineInternalId)) {
             throw new NotFoundException(String.format("Machine with internal ID \'%s\' does not exist.", machineInternalId));
           }
-          hourPrice.setMachineInternalId(machineInternalId);
+
+          Machine machine = machineRepository.findByInternalId(machineInternalId);
+          hourPrice.setMachine(machine);
         } else {
           throw new WrongDataTypeException("Wrong data type in column \'machineInternalId\'. It must be a string (text)!");
         }
@@ -202,7 +205,7 @@ public class HourPriceService {
         if (!hourPriceChecker.isPriceUnique(checkedPrice, price)) {
           isUnique = false;
           throw new OverlappingDatesException(String.format("Hour price for a given work code (%s), machine (%s) and price type (%s) cannot overlap in time with the same entry",
-              checkedPrice.getWorkCode().toString(), checkedPrice.getMachineInternalId(), checkedPrice.getPriceType().toString()));
+              checkedPrice.getWorkCode().toString(), checkedPrice.getMachine().getInternalId(), checkedPrice.getPriceType().toString()));
         }
       }
     }
@@ -231,7 +234,7 @@ public class HourPriceService {
 
   private boolean isOnlyPriceValueDifferent(HourPrice dbPrice, HourPrice editedPrice) {
     return dbPrice.getWorkCode() == editedPrice.getWorkCode()
-        && dbPrice.getMachineInternalId().equals(editedPrice.getMachineInternalId())
+        && dbPrice.getMachine().getInternalId().equals(editedPrice.getMachine().getInternalId())
         && dbPrice.getPriceType() == editedPrice.getPriceType()
         && dbPrice.getStartDate().isEqual(editedPrice.getStartDate())
         && dbPrice.getEndDate().isEqual(editedPrice.getEndDate())
@@ -245,7 +248,7 @@ public class HourPriceService {
 
     if (!isPriceUnique(id, hourPrice)) {
       throw new OverlappingDatesException(String.format("Hour price for a given work code (%s), machine (%s) and price type (%s) cannot overlap in time with the same entry.",
-          hourPrice.getWorkCode().toString(), hourPrice.getMachineInternalId(), hourPrice.getPriceType().toString()));
+          hourPrice.getWorkCode().toString(), hourPrice.getMachine().getInternalId(), hourPrice.getPriceType().toString()));
     }
   }
 
@@ -263,7 +266,7 @@ public class HourPriceService {
         isUnique = false;
         throw new OverlappingDatesException(
             String.format("Hour price for a given work code (%s), machine number (%s), price type (%s) cannot overlap in time with the same entry.",
-                editedPrice.getWorkCode(), editedPrice.getMachineInternalId(), editedPrice.getPriceType().toString()));
+                editedPrice.getWorkCode(), editedPrice.getMachine().getInternalId(), editedPrice.getPriceType().toString()));
       }
 
     }
@@ -301,7 +304,7 @@ public class HourPriceService {
 
   public boolean isPriceMatching(LocalDate date, HourPrice hourPrice, HourPrice matchingPrice, String editedMachineNumber) {
     return hourPrice.getWorkCode() == matchingPrice.getWorkCode()
-        && editedMachineNumber.equals(matchingPrice.getMachineInternalId())
+        && editedMachineNumber.equals(matchingPrice.getMachine().getInternalId())
         && hourPrice.getPriceType() == matchingPrice.getPriceType()
         && hourPrice.getProjectCode().equals(matchingPrice.getProjectCode())
         && (date.isAfter(matchingPrice.getStartDate()) || date.isEqual(matchingPrice.getStartDate()))
@@ -332,7 +335,7 @@ public class HourPriceService {
     }
 
     List<WorkReportEntry> workReportEntries = workReportEntryService.getWorkReportEntriesByHourPrice(id);
-    String newHourPriceMachineInternalId = newHourPrice.getMachineInternalId();
+    String newHourPriceMachineInternalId = newHourPrice.getMachine().getInternalId();
     List<HourPrice> allHourPricesByMachineInternalId = hourPriceRepository.findByMachineInternalIdEquals(newHourPriceMachineInternalId);
 
     for (WorkReportEntry workReportEntry : workReportEntries) {
