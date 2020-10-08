@@ -422,7 +422,7 @@ public class DistancePriceService {
             roadCardEntry.getMeasureUnit(),
             roadCardEntry.getDistance(),
             roadCardEntry.getCostCode().getFullCode(),
-            roadCardEntry.getAcceptingPerson()));
+            roadCardEntry.getAcceptingPerson().getName()));
       }
     }
 

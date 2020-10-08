@@ -374,7 +374,7 @@ public class HourPriceService {
             workReportEntry.getTypeOfWork(),
             workReportEntry.getWorkQuantity(),
             workReportEntry.getCostCode().getFullCode(),
-            workReportEntry.getAcceptingPerson()));
+            workReportEntry.getAcceptingPerson().getName()));
       }
     }
 

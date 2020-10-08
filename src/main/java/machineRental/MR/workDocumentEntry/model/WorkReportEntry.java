@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 import machineRental.MR.costcode.model.CostCode;
 import machineRental.MR.estimate.model.EstimatePosition;
+import machineRental.MR.operator.model.Operator;
 import machineRental.MR.price.hour.model.HourPrice;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocument.model.WorkDocument;
@@ -70,8 +71,9 @@ public class WorkReportEntry extends WorkDocumentEntry {
   private CostCode costCode;
 
   @NotNull
-  @Column
-  private String acceptingPerson;
+  @ManyToOne
+  @JoinColumn(name = "operator_id")
+  private Operator acceptingPerson;
 
   @NotNull
   @ManyToOne

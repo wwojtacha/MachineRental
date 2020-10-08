@@ -15,6 +15,7 @@ import lombok.Data;
 import machineRental.MR.costcode.model.CostCode;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.material.model.Material;
+import machineRental.MR.operator.model.Operator;
 import machineRental.MR.price.distance.model.DistancePrice;
 import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.WorkCode;
@@ -81,8 +82,9 @@ public class RoadCardEntry extends WorkDocumentEntry {
   private CostCode costCode;
 
   @NotNull
-  @Column
-  private String acceptingPerson;
+  @ManyToOne
+  @JoinColumn(name = "operator_id")
+  private Operator acceptingPerson;
 
   @NotNull
   @ManyToOne

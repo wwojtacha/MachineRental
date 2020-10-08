@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.Data;
 import machineRental.MR.costcode.model.CostCode;
 import machineRental.MR.estimate.model.EstimatePosition;
+import machineRental.MR.operator.model.Operator;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.model.WorkDocumentEntry;
@@ -27,7 +28,7 @@ public class WorkDocumentEntryForValidation {
 
   private CostCode costCode;
 
-  private String acceptingPerson;
+  private Operator acceptingPerson;
 
   private WorkDocument workDocument;
 

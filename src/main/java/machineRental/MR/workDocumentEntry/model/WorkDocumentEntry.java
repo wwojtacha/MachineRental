@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import lombok.Data;
 import machineRental.MR.costcode.model.CostCode;
 import machineRental.MR.estimate.model.EstimatePosition;
+import machineRental.MR.operator.model.Operator;
 import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.WorkCode;
 
@@ -22,7 +23,7 @@ public class WorkDocumentEntry {
 
   private CostCode costCode;
 
-  private String acceptingPerson;
+  private Operator acceptingPerson;
 
   private WorkDocument workDocument;
 
