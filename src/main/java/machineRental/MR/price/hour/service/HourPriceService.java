@@ -364,8 +364,9 @@ public class HourPriceService {
           }
         }
       } else {
-        throw new NotFoundException(String.format("There is no hour price matching work document: %s position: %s, %s, %s, %s, %s, %s, %s, %s, %s",
+        throw new NotFoundException(String.format("There is no hour price matching work document: %s entry dated at %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
             workDocument.getId(),
+            date,
             workReportEntry.getWorkCode(),
             workDocument.getMachine().getInternalId(),
             workReportEntry.getStartHour(),

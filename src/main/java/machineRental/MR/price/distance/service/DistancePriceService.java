@@ -213,7 +213,7 @@ public class DistancePriceService {
           continue;
         }
 
-        if (!isPriceUnique(checkedPrice, price)) {
+        if (!distancePriceChecker.isPriceUnique(checkedPrice, price)) {
           isUnique = false;
           throw new OverlappingDatesException(String.format("Distance price for a given work code (%s), machine (%s) and price type (%s) cannot overlap in time with the same entry",
               checkedPrice.getWorkCode().toString(), checkedPrice.getMachineInternalId(), checkedPrice.getPriceType().toString()));
@@ -225,27 +225,7 @@ public class DistancePriceService {
     return isUnique;
   }
 
-  private boolean isPriceUnique(DistancePrice newPrice, DistancePrice price) {
-    return newPrice.getWorkCode() != price.getWorkCode()
-        || !newPrice.getMachineInternalId().equals(price.getMachineInternalId())
-        || newPrice.getPriceType() != price.getPriceType()
-        || !newPrice.getProjectCode().equals(price.getProjectCode())
-        || !dateChecker.areDatesOverlapping(newPrice, price)
-        || !areDistanceRangesOverlapping(newPrice, price);
-  }
-
-  private boolean areDistanceRangesOverlapping(DistancePrice newPrice, DistancePrice price) {
-    double newDistancePriceRangeMin = newPrice.getRangeMin();
-    double newDistancePriceRangeMax = newPrice.getRangeMax();
-    double createdDistancePriceRrangeMin = price.getRangeMin();
-    double createdDistancePriceRrangeMax = price.getRangeMin();
-
-    return newDistancePriceRangeMin >= createdDistancePriceRrangeMin && newDistancePriceRangeMin <= createdDistancePriceRrangeMax
-        || newDistancePriceRangeMax <= createdDistancePriceRrangeMax && newDistancePriceRangeMax >= createdDistancePriceRrangeMin;
-
-  }
-
-  public DistancePrice update(Long id, DistancePrice distancePrice) {
+  public DistancePrice update(Long id, DistancePrice editedDistancePrice) {
 
     Optional<DistancePrice> dbPrice = distancePriceRepository.findById(id);
     if (!dbPrice.isPresent()) {
@@ -253,14 +233,16 @@ public class DistancePriceService {
     }
 
 
-    if (!isOnlyPriceValueDifferent(dbPrice.get(), distancePrice)) {
-      distancePriceChecker.checkPriceUsage(id);
-    }
+//    if (!isOnlyPriceValueDifferent(dbPrice.get(), editedDistancePrice)) {
+//      distancePriceChecker.checkPriceUsage(id);
+//    }
 
-    validateDeliveryPriceConsistency(id, distancePrice);
+    validateDeliveryPriceConsistency(id, editedDistancePrice);
 
-    distancePrice.setId(id);
-    return distancePriceRepository.save(distancePrice);
+    distancePriceChecker.checkEditability(id, dbPrice.get(), editedDistancePrice);
+
+    editedDistancePrice.setId(id);
+    return distancePriceRepository.save(editedDistancePrice);
   }
 
   private boolean isOnlyPriceValueDifferent(DistancePrice dbPrice, DistancePrice editedPrice) {
@@ -295,7 +277,7 @@ public class DistancePriceService {
         continue;
       }
 
-      if (!isPriceUnique(editedPrice, dbPrice)) {
+      if (!distancePriceChecker.isPriceUnique(editedPrice, dbPrice)) {
         isUnique = false;
         throw new OverlappingDatesException(
             String.format("Distance price for a given work code (%s), machine number (%s), price type (%s) cannot overlap in time with the same entry.",
@@ -361,17 +343,17 @@ public class DistancePriceService {
 
     DistancePrice dbPrice = dbPriceOptional.get();
 
-    if (dateChecker.areSameDates(editedDistancePrice, dbPrice) && areSameDistanceRanges(editedDistancePrice, dbPrice)) {
+    if (dateChecker.areSameDates(editedDistancePrice, dbPrice) && distancePriceChecker.areSameDistanceRanges(editedDistancePrice, dbPrice)) {
       throw new NothingChangedException("Dates or distance ranges haven`t been changed. Nothing has been updated.");
     }
 
     if (dateChecker.areDatesOverlapping(newDistancePrice, editedDistancePrice)) {
-      throw new OverlappingDistanceRangesException("Distance ranges cannot overlap with each other.");
-    }
-
-    if (areDistanceRangesOverlapping(newDistancePrice, editedDistancePrice)) {
       throw new OverlappingDatesException("Dates cannot overlap in time.");
     }
+
+//    if (distancePriceChecker.areDistanceRangesOverlapping(newDistancePrice, editedDistancePrice)) {
+//      throw new OverlappingDistanceRangesException("Distance ranges cannot overlap with each other.");
+//    }
 
     List<RoadCardEntry> roadCardEntries = roadCardEntryService.getWorkReportEntriesByDistancePrice(id);
     String newDistancePriceMachineInternalId = newDistancePrice.getMachineInternalId();
@@ -384,7 +366,7 @@ public class DistancePriceService {
       double distance = roadCardEntry.getDistance();
 
 
-      if (dateChecker.isDateMatching(date, editedDistancePrice) && isDistanceMatching(distance, editedDistancePrice)) {
+      if (dateChecker.isDateMatching(date, editedDistancePrice) && distancePriceChecker.isDistanceMatching(distance, editedDistancePrice)) {
 
         for (DistancePrice dbDistancePrice : allDistancePricesByMachineInternalId) {
 
@@ -392,11 +374,11 @@ public class DistancePriceService {
             continue;
           }
 
-          if (!isPriceUnique(editedDistancePrice, dbDistancePrice)) {
+          if (!distancePriceChecker.isPriceUnique(editedDistancePrice, dbDistancePrice)) {
             throw new OverlappingDatesException("Edited distance price cannot overlap in time with the same entry.");
           }
         }
-      } else if (dateChecker.isDateMatching(date, newDistancePrice) && isDistanceMatching(distance, newDistancePrice)) {
+      } else if (dateChecker.isDateMatching(date, newDistancePrice) && distancePriceChecker.isDistanceMatching(distance, newDistancePrice)) {
 
         for (DistancePrice dbDistancePrice : allDistancePricesByMachineInternalId) {
 
@@ -404,13 +386,14 @@ public class DistancePriceService {
             continue;
           }
 
-          if (!isPriceUnique(newDistancePrice, dbDistancePrice)) {
+          if (!distancePriceChecker.isPriceUnique(newDistancePrice, dbDistancePrice)) {
             throw new OverlappingDatesException("New distance price cannot overlap in time with the same entry.");
           }
         }
       } else {
-        throw new NotFoundException(String.format("There is no distance price matching work document: %s position: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
+        throw new NotFoundException(String.format("There is no distance price matching work document: %s entry dated at %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s",
             workDocument.getId(),
+            date,
             roadCardEntry.getWorkCode(),
             workDocument.getMachine().getInternalId(),
             roadCardEntry.getStartHour(),
@@ -455,11 +438,11 @@ public class DistancePriceService {
       double distance = roadCardEntry.getDistance();
 
 
-      if (dateChecker.isDateMatching(date, editedDistancePrice) && isDistanceMatching(distance, editedDistancePrice)) {
+      if (dateChecker.isDateMatching(date, editedDistancePrice) && distancePriceChecker.isDistanceMatching(distance, editedDistancePrice)) {
 
         roadCardEntry.setDistancePrice(editedDistancePriceFromDb.get());
         roadCardEntryRepository.save(roadCardEntry);
-      } else if (dateChecker.isDateMatching(date, newDistancePrice) && isDistanceMatching(distance, newDistancePrice)) {
+      } else if (dateChecker.isDateMatching(date, newDistancePrice) && distancePriceChecker.isDistanceMatching(distance, newDistancePrice)) {
 
         roadCardEntry.setDistancePrice(newDistancePriceFromDb);
         roadCardEntryRepository.save(roadCardEntry);
@@ -474,17 +457,5 @@ public class DistancePriceService {
   private boolean areSameDates(DistancePrice editedDistancePrice, DistancePrice dbPrice) {
     return dbPrice.getStartDate().isEqual(editedDistancePrice.getStartDate()) && dbPrice.getEndDate().isEqual(editedDistancePrice.getEndDate());
   }
-
-  private boolean areSameDistanceRanges(DistancePrice editedDistancePrice, DistancePrice dbPrice) {
-    return ((Double) dbPrice.getRangeMin()).equals((Double) editedDistancePrice.getRangeMin()) && ((Double) dbPrice.getRangeMax()).equals((Double) editedDistancePrice.getRangeMax());
-  }
-
-  private boolean isDistanceMatching(double distance, DistancePrice price) {
-    double rangeMin = price.getRangeMin();
-    double rangeMax = price.getRangeMax();
-
-    return distance >= rangeMin && distance <= rangeMax;
-  }
-
 }
 
