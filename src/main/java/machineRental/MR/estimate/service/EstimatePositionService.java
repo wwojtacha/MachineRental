@@ -202,4 +202,8 @@ public class EstimatePositionService {
       throw new BindingResultException(bindingResult);
     }
   }
+
+  public List<EstimatePosition> getEstimatePositionsByCostCode(Long costCodeId) {
+    return estimatePositionRepository.findByCostCode_Id(costCodeId);
+  }
 }
