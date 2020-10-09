@@ -20,4 +20,6 @@ public interface WorkReportEntryRepository extends JpaRepository<WorkReportEntry
   boolean existsByHourPrice_Id(Long priceId);
 
   List<WorkReportEntry> findAllByHourPrice_Id(Long id);
+
+  List<WorkReportEntry> findByEstimatePosition_CostCode_ProjectCode(String projectCode);
 }

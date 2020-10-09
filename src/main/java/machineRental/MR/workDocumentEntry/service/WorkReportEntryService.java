@@ -8,9 +8,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotEmpty;
+import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.price.PriceType;
+import machineRental.MR.price.hour.HourPriceChecker;
 import machineRental.MR.price.hour.model.HourPrice;
 import machineRental.MR.price.hour.service.HourPriceService;
 import machineRental.MR.workDocument.model.WorkDocument;
@@ -42,6 +45,9 @@ public class WorkReportEntryService {
 
   @Autowired
   WorkDocumentEntryValidator workDocumentEntryValidator;
+
+  @Autowired
+  private HourPriceChecker hourPriceChecker;
 
 
   public List<WorkReportEntry> create(List<WorkReportEntry> workReportEntries, BindingResult bindingResult) {
@@ -186,5 +192,58 @@ public class WorkReportEntryService {
 
   public List<WorkReportEntry> getWorkReportEntriesByHourPrice(Long priceId) {
     return workReportEntryRepository.findAllByHourPrice_Id(priceId);
+  }
+
+  public void updateOnEstimatePositionChange(Long id, EstimatePosition existingEstimatePosition, EstimatePosition editedEstimatePosition) {
+
+    String existingEstimateProjectCode = existingEstimatePosition.getCostCode().getProjectCode();
+
+    List<WorkReportEntry> workReportEntries = getWorkReportEntriesByEstimateProjectCode(existingEstimateProjectCode);
+
+    if (workReportEntries.isEmpty()) {
+      return;
+    }
+
+    String editedEstimateProjectCode = editedEstimatePosition.getCostCode().getProjectCode();
+
+    List<HourPrice> hourPricesByProjectCode = hourPriceService.getHourPricesByProjectCode(editedEstimateProjectCode);
+
+
+    for (WorkReportEntry workReportEntry : workReportEntries) {
+
+      boolean isMatchingPrice = false;
+
+      for (HourPrice hourPrice : hourPricesByProjectCode) {
+        if (hourPriceChecker.isPriceMatchingEditedEstimateProjectCode(workReportEntry, hourPrice)) {
+          workReportEntry.setHourPrice(hourPrice);
+          editedEstimatePosition.setId(id);
+          workReportEntry.setEstimatePosition(editedEstimatePosition);
+//          workReportEntryRepository.save(workReportEntry);
+          isMatchingPrice = true;
+          break;
+        }
+      }
+
+      WorkDocument workDocument = workReportEntry.getWorkDocument();
+      WorkCode workCode = workReportEntry.getWorkCode();
+      String machineNumber = workDocument.getMachine().getInternalId();
+      PriceType priceType = workReportEntry.getHourPrice().getPriceType();
+      LocalDate date = workDocument.getDate();
+
+      if (!isMatchingPrice) {
+        throw new NotFoundException(String.format("There is no hour price matching edited estimate projct code %s and work report entry parameters: %s, %s, %s, %s.",
+            editedEstimateProjectCode,
+            workCode,
+            machineNumber,
+            priceType,
+            date));
+      }
+
+    }
+
+  }
+
+  public List<WorkReportEntry> getWorkReportEntriesByEstimateProjectCode(String projectCode) {
+    return workReportEntryRepository.findByEstimatePosition_CostCode_ProjectCode(projectCode);
   }
 }

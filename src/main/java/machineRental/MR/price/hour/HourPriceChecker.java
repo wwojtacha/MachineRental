@@ -2,6 +2,9 @@ package machineRental.MR.price.hour;
 
 import java.time.LocalDate;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.price.PriceChecker;
 import machineRental.MR.price.PriceType;
@@ -107,5 +110,26 @@ public class HourPriceChecker implements PriceChecker {
         && workReportEntry.getEstimatePosition().getCostCode().getProjectCode().equals(editedHourPrice.getProjectCode())
         && (date.isAfter(editedHourPrice.getStartDate()) || date.isEqual(editedHourPrice.getStartDate()))
         && (date.isBefore(editedHourPrice.getEndDate()) || date.isEqual(editedHourPrice.getEndDate()));
+  }
+
+  /**
+   * Check of hour price project code againg work report entry project code is not done as they will not be the same, beacuse method is intended for checking
+   * if work report entry can be matched to another price after changing estimate position project code, which is a key for mathcing price and estimate position.
+   * @param workReportEntry checked work report entry
+   * @param matchingHourPrice price against whcih work report entry is checked
+   * @return
+   */
+  public boolean isPriceMatchingEditedEstimateProjectCode(WorkReportEntry workReportEntry, HourPrice matchingHourPrice) {
+
+    WorkDocument workDocument = workReportEntry.getWorkDocument();
+    String machineInternalId = workDocument.getMachine().getInternalId();
+    LocalDate date = workDocument.getDate();
+
+    return workReportEntry.getWorkCode() == matchingHourPrice.getWorkCode()
+        && machineInternalId.equals(matchingHourPrice.getMachine().getInternalId())
+        && workReportEntry.getHourPrice().getPriceType() == matchingHourPrice.getPriceType()
+//        && workReportEntry.getEstimatePosition().getCostCode().getProjectCode().equals(matchingHourPrice.getProjectCode())
+        && (date.isAfter(matchingHourPrice.getStartDate()) || date.isEqual(matchingHourPrice.getStartDate()))
+        && (date.isBefore(matchingHourPrice.getEndDate()) || date.isEqual(matchingHourPrice.getEndDate()));
   }
 }

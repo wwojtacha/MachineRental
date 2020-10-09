@@ -16,6 +16,7 @@ import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.excel.WrongDataTypeException;
 import machineRental.MR.repository.EstimatePositionRepository;
+import machineRental.MR.workDocumentEntry.service.WorkReportEntryService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -39,6 +40,9 @@ public class EstimatePositionService {
 
   @Autowired
   private CostCodeService costCodeService;
+
+  @Autowired
+  private WorkReportEntryService workReportEntryService;
 
 
   public void saveDataFromExcel(MultipartFile file) {
@@ -141,25 +145,27 @@ public class EstimatePositionService {
     return estimatePositionRepository.findByNameContainingAndCostCode_ProjectCodeContainingAndCostCode_CostTypeContainingAndRemarksContaining(name, projectCode, costType, remarks, pageable);
   }
 
-  public EstimatePosition update(Long id, EstimatePosition estimatePosition, BindingResult bindingResult) {
+  public EstimatePosition update(Long id, EstimatePosition editedEstimatePosition, BindingResult bindingResult) {
     Optional<EstimatePosition> dbEstimatePosition = estimatePositionRepository.findById(id);
     if(!dbEstimatePosition.isPresent()) {
       throw new NotFoundException("Estimate position: " + "\'" + id + "\'" + " does not exist");
     }
 
-    validateEstimatePositionConsistency(estimatePosition, dbEstimatePosition.get(), bindingResult);
+    validateEstimatePositionConsistency(editedEstimatePosition, dbEstimatePosition.get(), bindingResult);
 
-    double quantity = estimatePosition.getQuantity();
-    BigDecimal sellPrice = estimatePosition.getSellPrice();
+    workReportEntryService.updateOnEstimatePositionChange(id, dbEstimatePosition.get(), editedEstimatePosition);
+
+    double quantity = editedEstimatePosition.getQuantity();
+    BigDecimal sellPrice = editedEstimatePosition.getSellPrice();
     BigDecimal sellValue = sellPrice.multiply(BigDecimal.valueOf(quantity));
-    estimatePosition.setSellValue(sellValue);
+    editedEstimatePosition.setSellValue(sellValue);
 
-    BigDecimal costPrice = estimatePosition.getCostPrice();
+    BigDecimal costPrice = editedEstimatePosition.getCostPrice();
     BigDecimal costValue = costPrice.multiply(BigDecimal.valueOf(quantity));
-    estimatePosition.setCostValue(costValue);
+    editedEstimatePosition.setCostValue(costValue);
 
-    estimatePosition.setId(id);
-    return estimatePositionRepository.save(estimatePosition);
+    editedEstimatePosition.setId(id);
+    return estimatePositionRepository.save(editedEstimatePosition);
   }
 
   private void validateEstimatePositionConsistency(EstimatePosition estimatePosition, EstimatePosition currentEstimatePosition, BindingResult bindingResult) {

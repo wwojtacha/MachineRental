@@ -423,5 +423,9 @@ public class HourPriceService {
 
   }
 
+  public List<HourPrice> getHourPricesByProjectCode(String projectCode) {
+    return hourPriceRepository.findByProjectCode(projectCode);
+  }
+
 }
 

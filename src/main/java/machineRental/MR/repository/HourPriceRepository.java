@@ -25,4 +25,6 @@ public interface HourPriceRepository extends JpaRepository<HourPrice, Long> {
       LocalDate startDate,
       LocalDate endDate,
       String projectCode);
+
+  List<HourPrice> findByProjectCode(String projectCode);
 }
