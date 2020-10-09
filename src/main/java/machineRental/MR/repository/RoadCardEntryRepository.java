@@ -5,6 +5,7 @@ import java.util.List;
 import machineRental.MR.machine.model.Machine;
 import machineRental.MR.operator.model.Operator;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
+import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoadCardEntryRepository extends JpaRepository<RoadCardEntry, Long> {
@@ -20,4 +21,8 @@ public interface RoadCardEntryRepository extends JpaRepository<RoadCardEntry, Lo
   boolean existsByDistancePrice_Id(Long priceId);
 
   List<RoadCardEntry> findAllByDistancePrice_Id(Long priceId);
+
+  List<RoadCardEntry> findByEstimatePosition_CostCode_ProjectCode(String projectCode);
+
+  List<RoadCardEntry> findByEstimatePosition_Id(Long estimateId);
 }

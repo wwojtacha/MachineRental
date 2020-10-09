@@ -460,5 +460,9 @@ public class DistancePriceService {
   private boolean areSameDates(DistancePrice editedDistancePrice, DistancePrice dbPrice) {
     return dbPrice.getStartDate().isEqual(editedDistancePrice.getStartDate()) && dbPrice.getEndDate().isEqual(editedDistancePrice.getEndDate());
   }
+
+  public List<DistancePrice> getDistancePricesByProjectCode(String projectCode) {
+    return distancePriceRepository.findByProjectCode(projectCode);
+  }
 }
 

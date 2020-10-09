@@ -8,11 +8,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
+import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.price.PriceType;
+import machineRental.MR.price.distance.DistancePriceChecker;
 import machineRental.MR.price.distance.model.DistancePrice;
 import machineRental.MR.price.distance.service.DistancePriceService;
+import machineRental.MR.price.hour.model.HourPrice;
 import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
@@ -41,7 +45,10 @@ public class RoadCardEntryService {
   private DistancePriceService distancePriceService;
 
   @Autowired
-  WorkDocumentEntryValidator workDocumentEntryValidator;
+  private WorkDocumentEntryValidator workDocumentEntryValidator;
+
+  @Autowired
+  private DistancePriceChecker distancePriceChecker;
 
 
   public List<RoadCardEntry> create(List<RoadCardEntry> roadCardEntries, BindingResult bindingResult) {
@@ -188,6 +195,63 @@ public class RoadCardEntryService {
   public List<RoadCardEntry> getWorkReportEntriesByDistancePrice(Long priceId) {
     return roadCardEntryRepository.findAllByDistancePrice_Id(priceId);
   }
+
+  public void updateOnEstimatePositionChange(Long id, EstimatePosition editedEstimatePosition) {
+
+    List<RoadCardEntry> roadCardEntries = getRoadCardEntriesByEstimatePosition_Id(id);
+
+    if (roadCardEntries.isEmpty()) {
+      return;
+    }
+
+    String editedEstimateProjectCode = editedEstimatePosition.getCostCode().getProjectCode();
+
+    List<DistancePrice> distancePricesByProjectCode = distancePriceService.getDistancePricesByProjectCode(editedEstimateProjectCode);
+
+
+    for (RoadCardEntry roadCardEntry : roadCardEntries) {
+
+      boolean isMatchingPrice = false;
+
+      for (DistancePrice distancePrice : distancePricesByProjectCode) {
+        if (distancePriceChecker.isPriceMatchingEditedEstimateProjectCode(roadCardEntry, distancePrice)) {
+          roadCardEntry.setDistancePrice(distancePrice);
+          editedEstimatePosition.setId(id);
+          roadCardEntry.setEstimatePosition(editedEstimatePosition);
+//          workReportEntryRepository.save(roadCardEntry);
+          isMatchingPrice = true;
+          break;
+        }
+      }
+
+      WorkDocument workDocument = roadCardEntry.getWorkDocument();
+      WorkCode workCode = roadCardEntry.getWorkCode();
+      String machineNumber = workDocument.getMachine().getInternalId();
+      PriceType priceType = roadCardEntry.getDistancePrice().getPriceType();
+      double distance = roadCardEntry.getDistance();
+      LocalDate date = workDocument.getDate();
+
+      if (!isMatchingPrice) {
+        throw new NotFoundException(String.format("There is no distance price matching edited estimate projct code %s and road card entry parameters: %s, %s, %s, %s, %s.",
+            editedEstimateProjectCode,
+            workCode,
+            machineNumber,
+            priceType,
+            distance,
+            date));
+      }
+
+    }
+  }
+
+  public List<RoadCardEntry> getRoadCardEntriesByEstimatePosition_Id(Long estimateId) {
+    return roadCardEntryRepository.findByEstimatePosition_Id(estimateId);
+  }
+
+  public List<RoadCardEntry> getRoadCardEntriesByEstimateProjectCode(String projectCode) {
+    return roadCardEntryRepository.findByEstimatePosition_CostCode_ProjectCode(projectCode);
+  }
+
 }
 
 

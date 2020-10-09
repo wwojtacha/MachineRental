@@ -14,6 +14,7 @@ import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.geo.Distance;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -145,4 +146,27 @@ public class DistancePriceChecker implements PriceChecker {
   public boolean areSameDistanceRanges(DistancePrice editedDistancePrice, DistancePrice dbPrice) {
     return ((Double) dbPrice.getRangeMin()).equals((Double) editedDistancePrice.getRangeMin()) && ((Double) dbPrice.getRangeMax()).equals((Double) editedDistancePrice.getRangeMax());
   }
+
+  /**
+   * Check of distance price project code against road card entry project code is not done as they will not be the same, beacuse method is intended for checking
+   * if road card entry can be matched to another price after changing estimate position project code, which is a key for mathcing price and estimate position.
+   * @param roadCardEntry checked work report entry
+   * @param matchingDistancePrice price against whcih work report entry is checked
+   * @return
+   */
+  public boolean isPriceMatchingEditedEstimateProjectCode(RoadCardEntry roadCardEntry, DistancePrice matchingDistancePrice) {
+
+    WorkDocument workDocument = roadCardEntry.getWorkDocument();
+    String machineInternalId = workDocument.getMachine().getInternalId();
+    LocalDate date = workDocument.getDate();
+
+    return roadCardEntry.getWorkCode() == matchingDistancePrice.getWorkCode()
+        && machineInternalId.equals(matchingDistancePrice.getMachine().getInternalId())
+        && roadCardEntry.getDistancePrice().getPriceType() == matchingDistancePrice.getPriceType()
+//        && roadCardEntry.getEstimatePosition().getCostCode().getProjectCode().equals(matchingDistancePrice.getProjectCode())
+        && isDistanceMatching(roadCardEntry.getDistance(), matchingDistancePrice)
+        && (date.isAfter(matchingDistancePrice.getStartDate()) || date.isEqual(matchingDistancePrice.getStartDate()))
+        && (date.isBefore(matchingDistancePrice.getEndDate()) || date.isEqual(matchingDistancePrice.getEndDate()));
+  }
+
 }
