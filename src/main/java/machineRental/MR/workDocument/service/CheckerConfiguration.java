@@ -37,4 +37,11 @@ public class CheckerConfiguration {
     return workDocumentCheckers;
   }
 
+  @Bean
+  public WorkDocumentCheckerProvider getProvider(WorkReportUpdateChecker workReportUpdateChecker,
+      RoadCardUpdateChecker roadCardUpdateChecker,
+      Map<DocumentType, WorkDocumentUpdateChecker> checkersMap) {
+    return new WorkDocumentCheckerProvider(workReportUpdateChecker, roadCardUpdateChecker, checkersMap);
+  }
+
 }
