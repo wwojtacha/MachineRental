@@ -17,6 +17,7 @@ import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.material.model.Material;
 import machineRental.MR.price.PriceType;
+import machineRental.MR.price.delivery.DeliveryPriceChecker;
 import machineRental.MR.price.delivery.model.DeliveryPrice;
 import machineRental.MR.price.delivery.model.DeliveryPriceDto;
 import machineRental.MR.price.delivery.service.DeliveryPriceService;
@@ -39,6 +40,9 @@ public class DeliveryDocumentEntryService {
 
   @Autowired
   private DeliveryDocumentService deliveryDocumentService;
+
+  @Autowired
+  private DeliveryPriceChecker deliveryPriceChecker;
 
   public DeliveryDocumentEntryDto create(DeliveryDocumentEntryDto deliveryDocumentEntryDto, BindingResult bindingResult) {
 
@@ -187,5 +191,61 @@ public class DeliveryDocumentEntryService {
 
   public List<DeliveryDocumentEntry> getDeliveryDocumentEntriesByDeliveryPrice(Long priceId) {
     return deliveryDocumentEntryRepository.findAllByDeliveryPrice_Id(priceId);
+  }
+
+  public void updateOnEstimatePositionChange(Long id, EstimatePosition editedEstimatePosition) {
+
+    List<DeliveryDocumentEntry> deliveryDocumentEntries = getDeliveryDocumentEntriesByEstimatePosition_Id(id);
+
+    if (deliveryDocumentEntries.isEmpty()) {
+      return;
+    }
+
+    String editedEstimateProjectCode = editedEstimatePosition.getCostCode().getProjectCode();
+
+    List<DeliveryPrice> deliveryPricesByProjectCode = deliveryPriceService.getDeliveryPricesByProjectCode(editedEstimateProjectCode);
+
+
+    for (DeliveryDocumentEntry deliveryDocumentEntry : deliveryDocumentEntries) {
+
+      boolean isMatchingPrice = false;
+
+      for (DeliveryPrice deliveryPrice : deliveryPricesByProjectCode) {
+        if (deliveryPriceChecker.isPriceMatchingEditedEstimateProjectCode(deliveryDocumentEntry, deliveryPrice)) {
+          deliveryDocumentEntry.setDeliveryPrice(deliveryPrice);
+          editedEstimatePosition.setId(id);
+          deliveryDocumentEntry.setEstimatePosition(editedEstimatePosition);
+//          workReportEntryRepository.save(deliveryDocumentEntry);
+          isMatchingPrice = true;
+          break;
+        }
+      }
+
+      DeliveryDocument deliveryDocument = deliveryDocumentEntry.getDeliveryDocument();
+      String contractorMpk = deliveryDocumentEntry.getContractor().getMpk();
+      String materalType = deliveryDocumentEntry.getMaterial().getType();
+      PriceType priceType = deliveryDocumentEntry.getDeliveryPrice().getPriceType();
+      LocalDate date = deliveryDocument.getDate();
+
+      if (!isMatchingPrice) {
+        throw new NotFoundException(String.format("There is no delivery price matching edited estimate project code %s and delivery document entry parameters: %s, %s, %s, %s.",
+            editedEstimateProjectCode,
+            contractorMpk,
+            materalType,
+            priceType,
+            date));
+      }
+
+    }
+
+  }
+
+  public List<DeliveryDocumentEntry> getDeliveryDocumentEntriesByEstimatePosition_Id(Long estimateId) {
+    return deliveryDocumentEntryRepository.findByEstimatePosition_Id(estimateId);
+  }
+
+
+  private List<DeliveryDocumentEntry> getWorkReportEntriesByEstimateProjectCode(String projectCode) {
+    return deliveryDocumentEntryRepository.findByEstimatePosition_CostCode_ProjectCode(projectCode);
   }
 }

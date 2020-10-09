@@ -17,4 +17,8 @@ public interface DeliveryDocumentEntryRepository extends JpaRepository<DeliveryD
   void deleteByDeliveryDocument_DocumentNumber(String documentNumber);
 
   List<DeliveryDocumentEntry> findAllByDeliveryPrice_Id(Long priceId);
+
+  List<DeliveryDocumentEntry> findByEstimatePosition_CostCode_ProjectCode(String projectCode);
+
+  List<DeliveryDocumentEntry> findByEstimatePosition_Id(Long estimateId);
 }

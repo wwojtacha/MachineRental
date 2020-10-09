@@ -1,12 +1,15 @@
 package machineRental.MR.delivery.document.service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import machineRental.MR.client.model.Client;
 import machineRental.MR.delivery.document.model.DeliveryDocument;
 import machineRental.MR.delivery.document.model.DeliveryDocumentDto;
+import machineRental.MR.delivery.entry.model.DeliveryDocumentEntry;
 import machineRental.MR.delivery.entry.service.DeliveryDocumentEntryService;
+import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.repository.DeliveryDocumentRepository;
@@ -137,4 +140,5 @@ public class DeliveryDocumentService {
 
     return convertToDto(dbDeliveryDocument);
   }
+
 }

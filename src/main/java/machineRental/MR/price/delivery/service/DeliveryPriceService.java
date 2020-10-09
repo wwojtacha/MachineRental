@@ -456,4 +456,8 @@ public class DeliveryPriceService {
 
   }
 
+  public List<DeliveryPrice> getDeliveryPricesByProjectCode(String projectCode) {
+    return deliveryPriceRepository.findByProjectCode(projectCode);
+  }
+
 }

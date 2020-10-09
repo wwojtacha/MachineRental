@@ -111,4 +111,26 @@ public class DeliveryPriceChecker implements PriceChecker {
         && (date.isAfter(editedDeliveryPrice.getStartDate()) || date.isEqual(editedDeliveryPrice.getStartDate()))
         && (date.isBefore(editedDeliveryPrice.getEndDate()) || date.isEqual(editedDeliveryPrice.getEndDate()));
   }
+
+  /**
+   * Check of delivery price project code against delivery document entry project code is not done as they will not be the same, beacuse method is intended for checking
+   * if delivery document entry can be matched to another price after changing estimate position project code, which is a key for mathcing price and estimate position.
+   * @param deliveryDocumentEntry checked work report entry
+   * @param matchingDeliveryPrice price against whcih work report entry is checked
+   * @return
+   */
+  public boolean isPriceMatchingEditedEstimateProjectCode(DeliveryDocumentEntry deliveryDocumentEntry, DeliveryPrice matchingDeliveryPrice) {
+
+    DeliveryDocument deliveryDocument = deliveryDocumentEntry.getDeliveryDocument();
+    String contractorMpk = deliveryDocument.getContractor().getMpk();
+    LocalDate date = deliveryDocument.getDate();
+
+    return contractorMpk.equals(matchingDeliveryPrice.getContractor().getMpk())
+        && deliveryDocumentEntry.getMaterial().getType().equals(matchingDeliveryPrice.getMaterial().getType())
+        && deliveryDocumentEntry.getDeliveryPrice().getPriceType() == matchingDeliveryPrice.getPriceType()
+//        && deliveryDocumentEntry.getEstimatePosition().getCostCode().getProjectCode().equals(matchingDeliveryPrice.getProjectCode())
+        && (date.isAfter(matchingDeliveryPrice.getStartDate()) || date.isEqual(matchingDeliveryPrice.getStartDate()))
+        && (date.isBefore(matchingDeliveryPrice.getEndDate()) || date.isEqual(matchingDeliveryPrice.getEndDate()));
+
+  }
 }
