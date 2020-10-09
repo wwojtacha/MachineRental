@@ -8,6 +8,8 @@ import java.util.Optional;
 import javax.validation.constraints.NotEmpty;
 import machineRental.MR.costcode.model.CostCode;
 import machineRental.MR.costcode.service.CostCodeService;
+import machineRental.MR.delivery.document.service.DeliveryDocumentService;
+import machineRental.MR.delivery.entry.service.DeliveryDocumentEntryService;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.excel.AlreadyInDbException;
 import machineRental.MR.excel.ExcelHelper;
@@ -16,6 +18,7 @@ import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.excel.WrongDataTypeException;
 import machineRental.MR.repository.EstimatePositionRepository;
+import machineRental.MR.workDocumentEntry.service.RoadCardEntryService;
 import machineRental.MR.workDocumentEntry.service.WorkReportEntryService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -43,6 +46,12 @@ public class EstimatePositionService {
 
   @Autowired
   private WorkReportEntryService workReportEntryService;
+
+  @Autowired
+  private RoadCardEntryService roadCardEntryService;
+
+  @Autowired
+  private DeliveryDocumentEntryService deliveryDocumentEntryService;
 
 
   public void saveDataFromExcel(MultipartFile file) {
@@ -153,7 +162,9 @@ public class EstimatePositionService {
 
     validateEstimatePositionConsistency(editedEstimatePosition, dbEstimatePosition.get(), bindingResult);
 
-    workReportEntryService.updateOnEstimatePositionChange(id, dbEstimatePosition.get(), editedEstimatePosition);
+    workReportEntryService.updateOnEstimatePositionChange(id, editedEstimatePosition);
+    roadCardEntryService.updateOnEstimatePositionChange(id, editedEstimatePosition);
+    deliveryDocumentEntryService.updateOnEstimatePositionChange(id, editedEstimatePosition);
 
     double quantity = editedEstimatePosition.getQuantity();
     BigDecimal sellPrice = editedEstimatePosition.getSellPrice();

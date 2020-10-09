@@ -113,7 +113,7 @@ public class HourPriceChecker implements PriceChecker {
   }
 
   /**
-   * Check of hour price project code againg work report entry project code is not done as they will not be the same, beacuse method is intended for checking
+   * Check of hour price project code against work report entry project code is not done as they will not be the same, beacuse method is intended for checking
    * if work report entry can be matched to another price after changing estimate position project code, which is a key for mathcing price and estimate position.
    * @param workReportEntry checked work report entry
    * @param matchingHourPrice price against whcih work report entry is checked

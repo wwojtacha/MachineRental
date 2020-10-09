@@ -194,11 +194,9 @@ public class WorkReportEntryService {
     return workReportEntryRepository.findAllByHourPrice_Id(priceId);
   }
 
-  public void updateOnEstimatePositionChange(Long id, EstimatePosition existingEstimatePosition, EstimatePosition editedEstimatePosition) {
+  public void updateOnEstimatePositionChange(Long id, EstimatePosition editedEstimatePosition) {
 
-    String existingEstimateProjectCode = existingEstimatePosition.getCostCode().getProjectCode();
-
-    List<WorkReportEntry> workReportEntries = getWorkReportEntriesByEstimateProjectCode(existingEstimateProjectCode);
+    List<WorkReportEntry> workReportEntries = getWorkReportEntriesByEstimatePosition_Id(id);
 
     if (workReportEntries.isEmpty()) {
       return;
@@ -241,6 +239,10 @@ public class WorkReportEntryService {
 
     }
 
+  }
+
+  public List<WorkReportEntry> getWorkReportEntriesByEstimatePosition_Id(Long estimateId) {
+    return workReportEntryRepository.findByEstimatePosition_Id(estimateId);
   }
 
   public List<WorkReportEntry> getWorkReportEntriesByEstimateProjectCode(String projectCode) {
