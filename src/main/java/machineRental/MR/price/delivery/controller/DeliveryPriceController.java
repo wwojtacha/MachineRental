@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,11 +48,11 @@ public class DeliveryPriceController {
     deliveryPriceService.saveDataFromExcelFile(file);
   }
 
-//  @DeleteMapping("/{id}")
-//  @ResponseStatus(HttpStatus.OK)
-//  public void delete(@PathVariable String id, BindingResult bindingResult) {
-//    priceService.delete(id, bindingResult);
-//  }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  public void delete(@PathVariable Long id) {
+    deliveryPriceService.delete(id);
+  }
 
 //  @DeleteMapping("/{id}")
 //  @ResponseStatus(HttpStatus.OK)

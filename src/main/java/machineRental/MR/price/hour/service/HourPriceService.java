@@ -427,5 +427,17 @@ public class HourPriceService {
     return hourPriceRepository.findByProjectCode(projectCode);
   }
 
+  public void delete(Long id) {
+    Optional<HourPrice> dbHourPrice = hourPriceRepository.findById(id);
+
+    if (!dbHourPrice.isPresent()) {
+      throw new NotFoundException(String.format("Hour price with id \'%s\' doesn`t exist!", id));
+    }
+
+    hourPriceChecker.checkPriceUsage(id);
+
+// if price is not used in any work report entry it can be deleted
+    hourPriceRepository.deleteById(id);
+  }
 }
 

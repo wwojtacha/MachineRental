@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,11 +55,11 @@ public class HourPriceController {
 //    priceService.delete(id, bindingResult);
 //  }
 
-//  @DeleteMapping("/{id}")
-//  @ResponseStatus(HttpStatus.OK)
-//  public void delete(@PathVariable String id) {
-//    hourPriceService.delete(id);
-//  }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  public void delete(@PathVariable Long id) {
+    hourPriceService.delete(id);
+  }
 
 
   @PutMapping("/{id}")

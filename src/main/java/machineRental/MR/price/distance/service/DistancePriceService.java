@@ -464,5 +464,18 @@ public class DistancePriceService {
   public List<DistancePrice> getDistancePricesByProjectCode(String projectCode) {
     return distancePriceRepository.findByProjectCode(projectCode);
   }
+
+  public void delete(Long id) {
+    Optional<DistancePrice> dbDistancePrice = distancePriceRepository.findById(id);
+
+    if (!dbDistancePrice.isPresent()) {
+      throw new NotFoundException(String.format("Distance price with id \'%s\' doesn`t exist!", id));
+    }
+
+    distancePriceChecker.checkPriceUsage(id);
+
+// if price is not used in any road card entry it can be deleted
+    distancePriceRepository.deleteById(id);
+  }
 }
 

@@ -460,4 +460,17 @@ public class DeliveryPriceService {
     return deliveryPriceRepository.findByProjectCode(projectCode);
   }
 
+  public void delete(Long id) {
+    Optional<DeliveryPrice> dbDeliveryPrice = deliveryPriceRepository.findById(id);
+
+    if (!dbDeliveryPrice.isPresent()) {
+      throw new NotFoundException(String.format("Delivery price with id \'%s\' doesn`t exist!", id));
+    }
+
+    deliveryPriceChecker.checkPriceUsage(id);
+
+// if price is not used in any road card entry it can be deleted
+    deliveryPriceRepository.deleteById(id);
+  }
+
 }
