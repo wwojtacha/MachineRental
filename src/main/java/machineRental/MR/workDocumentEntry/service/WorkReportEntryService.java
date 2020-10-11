@@ -248,4 +248,8 @@ public class WorkReportEntryService {
   public List<WorkReportEntry> getWorkReportEntriesByEstimateProjectCode(String projectCode) {
     return workReportEntryRepository.findByEstimatePosition_CostCode_ProjectCode(projectCode);
   }
+
+  public List<WorkReportEntry> getWorkReportEntriesBetweenDates(LocalDate startDate, LocalDate endDate) {
+    return workReportEntryRepository.findByWorkDocument_DateBetween(startDate, endDate);
+  }
 }

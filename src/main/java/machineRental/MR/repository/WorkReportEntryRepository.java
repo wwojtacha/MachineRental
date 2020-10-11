@@ -24,4 +24,6 @@ public interface WorkReportEntryRepository extends JpaRepository<WorkReportEntry
   List<WorkReportEntry> findByEstimatePosition_CostCode_ProjectCode(String projectCode);
 
   List<WorkReportEntry> findByEstimatePosition_Id(Long estimateId);
+
+  List<WorkReportEntry> findByWorkDocument_DateBetween(LocalDate startDate, LocalDate endDate);
 }
