@@ -1,6 +1,8 @@
 package machineRental.MR.reports;
 
 import java.awt.Desktop;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,6 +13,7 @@ import java.util.List;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import machineRental.MR.price.hour.exception.IncorrectDateException;
+import machineRental.MR.repository.WorkReportEntryRepository;
 import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import machineRental.MR.workDocumentEntry.service.WorkReportEntryService;
 import org.apache.poi.ss.usermodel.Cell;
@@ -23,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReportService {
+public class WorkReportEntryReportGenerator extends ExcelReportGenerator{
 
   @Autowired
   private WorkReportEntryService workReportEntryService;
@@ -43,7 +46,7 @@ public class ReportService {
 
       writeHeaderLine(sheet);
 
-      writeDataLines(workReportEntries, sheet);
+      writeDataLines(startDate, endDate, sheet);
 
       worbook.write(fileOutputStream);
 
@@ -57,7 +60,8 @@ public class ReportService {
 
   }
 
-  private void writeHeaderLine(Sheet sheet) {
+  @Override
+  void writeHeaderLine(Sheet sheet) {
     Row headerRow = sheet.createRow(0);
 
     Cell headerCell = headerRow.createCell(0);
@@ -126,7 +130,10 @@ public class ReportService {
 //    }
   }
 
-  private void writeDataLines(List<WorkReportEntry> workReportEntries, Sheet sheet) {
+  @Override
+  void writeDataLines(LocalDate startDate, LocalDate endDate, Sheet sheet) {
+
+    List<WorkReportEntry> workReportEntries = workReportEntryService.getWorkReportEntriesBetweenDates(startDate, endDate);
 
     int rowNumber = 1;
 
@@ -198,36 +205,21 @@ public class ReportService {
     }
   }
 
-  public Date convertToDateViaSqlDate(LocalDate dateToConvert) {
-    return java.sql.Date.valueOf(dateToConvert);
-  }
+  @Override
+  public ByteArrayInputStream exportExcelReport(LocalDate startDate, LocalDate endDate) throws IOException {
 
-  public List<WorkReportEntry> generateReport(LocalDate startDate, LocalDate endDate) {
-    if (endDate.isBefore(startDate)) {
-      throw new IncorrectDateException("End date must be equal or greater than start date.");
-    }
-
-    return workReportEntryService.getWorkReportEntriesBetweenDates(startDate, endDate);
-  }
-
-  public void export(HttpServletResponse response, LocalDate startDate, LocalDate endDate) throws IOException {
-
-//    FileOutputStream fileOutputStream = new FileOutputStream(file);
     XSSFWorkbook workbook = new XSSFWorkbook();
     Sheet sheet = workbook.createSheet("WorkReportEntries");
 
     writeHeaderLine(sheet);
 
-    List<WorkReportEntry> workReportEntries = workReportEntryService.getWorkReportEntriesBetweenDates(startDate, endDate);
+    writeDataLines(startDate, endDate, sheet);
 
-    writeDataLines(workReportEntries, sheet);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    ServletOutputStream outputStream = response.getOutputStream();
-    workbook.write(outputStream);
-//    workbook.close();
+    workbook.write(out);
 
-    outputStream.close();
-
+    return new ByteArrayInputStream(out.toByteArray());
   }
 }
 

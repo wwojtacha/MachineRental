@@ -22,6 +22,7 @@ import machineRental.MR.price.delivery.model.DeliveryPrice;
 import machineRental.MR.price.delivery.model.DeliveryPriceDto;
 import machineRental.MR.price.delivery.service.DeliveryPriceService;
 import machineRental.MR.repository.DeliveryDocumentEntryRepository;
+import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -247,5 +248,9 @@ public class DeliveryDocumentEntryService {
 
   private List<DeliveryDocumentEntry> getWorkReportEntriesByEstimateProjectCode(String projectCode) {
     return deliveryDocumentEntryRepository.findByEstimatePosition_CostCode_ProjectCode(projectCode);
+  }
+
+  public List<DeliveryDocumentEntry> getDeliveryDocumentEntriesBetweenDates(LocalDate startDate, LocalDate endDate) {
+    return deliveryDocumentEntryRepository.findByDeliveryDocument_DateBetween(startDate, endDate);
   }
 }

@@ -252,6 +252,10 @@ public class RoadCardEntryService {
     return roadCardEntryRepository.findByEstimatePosition_CostCode_ProjectCode(projectCode);
   }
 
+  public List<RoadCardEntry> getRoadCardEntriesBetweenDates(LocalDate startDate, LocalDate endDate) {
+    return roadCardEntryRepository.findByWorkDocument_DateBetween(startDate, endDate);
+  }
+
 }
 
 
