@@ -2,12 +2,18 @@ package machineRental.MR.user.service;
 
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.exception.UnauthorizedException;
 import machineRental.MR.repository.UserRepository;
+import machineRental.MR.user.UserRole;
 import machineRental.MR.user.model.User;
+import machineRental.MR.user.model.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -81,5 +87,19 @@ public class UserService {
             throw new UnauthorizedException("You are not permitted to get users information.");
         }
         return userRepository.findAll();
+    }
+
+    public UserDto getUser(String username) {
+        Optional<User> dbUser = userRepository.findByUsername(username);
+        if (!dbUser.isPresent()) {
+            throw new NotFoundException(String.format("User with username: %s not found.", username));
+        }
+
+        User user = dbUser.get();
+        UserRole role = user.getRole();
+        String email = user.getEmail();
+        UserDto userDto = new UserDto(username, role, email);
+
+        return userDto;
     }
 }

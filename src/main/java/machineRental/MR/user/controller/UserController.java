@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.validation.Valid;
 import machineRental.MR.user.model.User;
+import machineRental.MR.user.model.UserDto;
 import machineRental.MR.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,4 +45,10 @@ public class UserController {
     return userService.update(user, id, bindingResult);
   }
 
+
+  @GetMapping("/{username}")
+  @ResponseStatus(HttpStatus.OK)
+  public UserDto getUser(@PathVariable String username) {
+    return userService.getUser(username);
+  }
 }
