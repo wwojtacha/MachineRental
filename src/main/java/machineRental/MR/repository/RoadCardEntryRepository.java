@@ -27,4 +27,7 @@ public interface RoadCardEntryRepository extends JpaRepository<RoadCardEntry, Lo
   List<RoadCardEntry> findByEstimatePosition_Id(Long estimateId);
 
   List<RoadCardEntry> findByWorkDocument_DateBetween(LocalDate startDate, LocalDate endDate);
+
+  List<RoadCardEntry> findByWorkDocument_DateBetweenAndEstimatePosition_CostCode_ProjectCodeEquals(LocalDate startDate, LocalDate endDate, String projectCode);
+
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.reports.cost.equipment.TotalEquipmentCost;
+import machineRental.MR.reports.cost.transport.TotalTransportCost;
 
 @Data
 @AllArgsConstructor
@@ -15,6 +16,7 @@ public class CostReport {
   private EstimatePosition estimatePosition;
   private double totalDailyReportQuantity;
   private TotalEquipmentCost totalEquipmentCost;
+  private TotalTransportCost totalTransportCost;
   private BigDecimal totalDeliveryCost;
 
 }

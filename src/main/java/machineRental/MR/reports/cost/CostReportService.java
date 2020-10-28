@@ -11,6 +11,8 @@ import machineRental.MR.estimate.service.EstimatePositionService;
 import machineRental.MR.reports.cost.delivery.DeliveryCostCalculator;
 import machineRental.MR.reports.cost.equipment.EquipmentCostCalculator;
 import machineRental.MR.reports.cost.equipment.TotalEquipmentCost;
+import machineRental.MR.reports.cost.transport.TotalTransportCost;
+import machineRental.MR.reports.cost.transport.TransportCostCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,9 @@ public class CostReportService {
   @Autowired
   private DeliveryCostCalculator deliveryCostCalculator;
 
+  @Autowired
+  private TransportCostCalculator transportCostCalculator;
+
 
   /**
    * @param startDate Date after which data should be found.
@@ -43,6 +48,8 @@ public class CostReportService {
     List<CostReport> costReports = new ArrayList<>();
 
     Map<EstimatePosition, TotalEquipmentCost> estimatePositionTotalEquipmentCostMap = equipmentCostCalculator.getTotalEquipmentCostByEstimatePosition(startDate, endDate, projectCode);
+
+    Map<EstimatePosition, TotalTransportCost> estimatePositionTotalTransportCostMap = transportCostCalculator.getTotalTransportCostByEstimatePosition(startDate, endDate, projectCode);
 
     Map<EstimatePosition, BigDecimal> estimatePositionTotalDeliveryCostMap = deliveryCostCalculator.getTotalDeliveryCostPerEstimatePosition(startDate, endDate, projectCode);
 
@@ -71,6 +78,18 @@ public class CostReportService {
         costReport.setTotalEquipmentCost(totalEquipmentCost);
       } else {
         costReport.setTotalEquipmentCost(totalEquipmentCost);
+      }
+
+      TotalTransportCost totalTransportCost = estimatePositionTotalTransportCostMap.get(estimatePosition);
+      if (totalTransportCost == null) {
+        totalTransportCost = new TotalTransportCost();
+        totalTransportCost.setTransportCosts(new ArrayList<>());
+        totalTransportCost.setTotalWorkHoursCount(0);
+        totalTransportCost.setTotalCostValue(BigDecimal.valueOf(0));
+
+        costReport.setTotalTransportCost(totalTransportCost);
+      } else {
+        costReport.setTotalTransportCost(totalTransportCost);
       }
 
       BigDecimal totalDeliveryCost = estimatePositionTotalDeliveryCostMap.get(estimatePosition);
