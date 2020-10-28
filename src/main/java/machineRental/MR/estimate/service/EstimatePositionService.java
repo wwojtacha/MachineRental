@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.constraints.NotEmpty;
 import machineRental.MR.costcode.model.CostCode;
 import machineRental.MR.costcode.service.CostCodeService;
-import machineRental.MR.delivery.document.service.DeliveryDocumentService;
 import machineRental.MR.delivery.entry.service.DeliveryDocumentEntryService;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.excel.AlreadyInDbException;
@@ -205,5 +203,9 @@ public class EstimatePositionService {
 
   public List<EstimatePosition> getEstimatePositionsByCostCode(Long costCodeId) {
     return estimatePositionRepository.findByCostCode_Id(costCodeId);
+  }
+
+  public List<EstimatePosition> getEstimatePositionsByProjectCode(String projectCode) {
+    return estimatePositionRepository.findByCostCode_ProjectCodeEquals(projectCode);
   }
 }

@@ -1,6 +1,9 @@
 package machineRental.MR.dailyReport;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.exception.BindingResultException;
@@ -133,5 +136,33 @@ public class DailyReportService {
     }
 
     return dailyReports.map(this::convertToDto);
+  }
+
+  public List<DailyReport> getDailyReportsForProjectCodeBetweenDates(LocalDate startDate, LocalDate endDate, String projectCode) {
+    return dailyReportRepository.findByDateBetweenAndEstimatePosition_CostCode_ProjectCode(startDate, endDate, projectCode);
+  }
+
+  public Map<EstimatePosition, Double> getDailyReportQuantityPerEstimatePosition(LocalDate startDate, LocalDate endDate, String projectCode) {
+    List<DailyReport> dailyReports = getDailyReportsForProjectCodeBetweenDates(startDate, endDate, projectCode);
+
+    Map<EstimatePosition, Double> estimatePositionToTotalDailyReportQuantity = new HashMap<>();
+
+    for (DailyReport dailyReport : dailyReports) {
+
+      EstimatePosition estimatePosition = dailyReport.getEstimatePosition();
+
+      double currentDailyReportQuantity = dailyReport.getQuantity();
+
+      Double dailyReportQuantity = estimatePositionToTotalDailyReportQuantity.get(estimatePosition);
+
+      if (dailyReportQuantity == null) {
+        estimatePositionToTotalDailyReportQuantity.put(estimatePosition, currentDailyReportQuantity);
+      } else {
+        dailyReportQuantity += currentDailyReportQuantity;
+        estimatePositionToTotalDailyReportQuantity.put(estimatePosition, dailyReportQuantity);
+      }
+    }
+
+    return estimatePositionToTotalDailyReportQuantity;
   }
 }

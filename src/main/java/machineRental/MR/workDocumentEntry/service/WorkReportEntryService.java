@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
-import javax.validation.constraints.NotEmpty;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
@@ -245,8 +244,8 @@ public class WorkReportEntryService {
     return workReportEntryRepository.findByEstimatePosition_Id(estimateId);
   }
 
-  public List<WorkReportEntry> getWorkReportEntriesByEstimateProjectCode(String projectCode) {
-    return workReportEntryRepository.findByEstimatePosition_CostCode_ProjectCode(projectCode);
+  public List<WorkReportEntry> getWorkReportEntriesBetweenDatesByEstimateProjectCode(LocalDate startDate, LocalDate endDate, String projectCode) {
+    return workReportEntryRepository.findByWorkDocument_DateBetweenAndEstimatePosition_CostCode_ProjectCodeEquals(startDate, endDate, projectCode);
   }
 
   public List<WorkReportEntry> getWorkReportEntriesBetweenDates(LocalDate startDate, LocalDate endDate) {

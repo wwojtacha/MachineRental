@@ -14,4 +14,6 @@ public interface EstimatePositionRepository extends JpaRepository<EstimatePositi
   boolean existsByNameAndCostCode_ProjectCode(String name, String projectCode);
 
   List<EstimatePosition> findByCostCode_Id(Long id);
+
+  List<EstimatePosition> findByCostCode_ProjectCodeEquals(String projectCode);
 }

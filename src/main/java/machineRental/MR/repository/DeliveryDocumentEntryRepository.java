@@ -24,4 +24,7 @@ public interface DeliveryDocumentEntryRepository extends JpaRepository<DeliveryD
   List<DeliveryDocumentEntry> findByEstimatePosition_Id(Long estimateId);
 
   List<DeliveryDocumentEntry> findByDeliveryDocument_DateBetween(LocalDate startDate, LocalDate endDate);
+
+  List<DeliveryDocumentEntry> findByDeliveryDocument_DateBetweenAndEstimatePosition_CostCode_ProjectCodeEquals(LocalDate startDate, LocalDate endDate, String projectCode);
+
 }
