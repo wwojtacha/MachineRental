@@ -52,7 +52,7 @@ public class EquipmentCostCalculator {
 
       EstimatePosition estimatePosition = workReportEntry.getEstimatePosition();
       MachineType machineType = workReportEntry.getWorkDocument().getMachine().getMachineType();
-      double currentHoursCount = Duration.between(workReportEntry.getStartHour(), workReportEntry.getEndHour()).toHours();
+      double currentHoursCount = (double) Duration.between(workReportEntry.getStartHour(), workReportEntry.getEndHour()).toSeconds() / 3600;
       BigDecimal currentEquipmentCost = BigDecimal.valueOf(currentHoursCount).multiply(workReportEntry.getHourPrice().getPrice());
 
       EquipmentCost equipmentCost = equipmentCostsMultiKeyMap.get(estimatePosition, machineType);
