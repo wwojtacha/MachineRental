@@ -82,7 +82,9 @@ public class DailyReportService {
 
     if(dailyReportRepository.existsByDateAndEstimatePosition(editedDailyReportDate, editedDailyReportEstimatePosition)
         && (!editedDailyReportDate.equals(existingDailyReportDate)
-        || !editedDailyReportEstimatePosition.equals(existingDailyReportEstimatePosition))) {
+//        editedEstimatePosition costValue and sellValue do not have decimal precision whereas existingEstimatePosition costValue and sellValue have it
+//        That`s why comparison can`t be made by whole objects. Ids will be sufficient.
+        || !editedDailyReportEstimatePosition.getId().equals(existingDailyReportEstimatePosition.getId()))) {
       bindingResult.addError(new FieldError(
           "DailyReport",
           "dailyReportId",
