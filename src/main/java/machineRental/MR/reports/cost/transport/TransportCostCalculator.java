@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.machineType.model.MachineType;
+import machineRental.MR.price.PriceType;
+import machineRental.MR.price.distance.model.DistancePrice;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.workDocumentEntry.service.RoadCardEntryService;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -52,26 +55,46 @@ public class TransportCostCalculator {
 
       EstimatePosition estimatePosition = roadCardEntry.getEstimatePosition();
       MachineType machineType = roadCardEntry.getWorkDocument().getMachine().getMachineType();
+      DistancePrice distancePrice = roadCardEntry.getDistancePrice();
+      PriceType priceType = distancePrice.getPriceType();
       double currentHoursCount = (double) Duration.between(roadCardEntry.getStartHour(), roadCardEntry.getEndHour()).toSeconds() / 3600;
-      BigDecimal currentTransportCost = BigDecimal.valueOf(currentHoursCount).multiply(roadCardEntry.getDistancePrice().getPrice());
 
-      TransportCost transportCost = transportCostsMultiKeyMap.get(estimatePosition, machineType);
+      BigDecimal price = distancePrice.getPrice();
+      double currentDistance = roadCardEntry.getDistance();
+      double currentQuantity = roadCardEntry.getQuantity();
+
+      BigDecimal currentTransportCost = BigDecimal.valueOf(0);
+
+      if (PriceType.DISTANCE == priceType) {
+        currentTransportCost = BigDecimal.valueOf(currentDistance).multiply(price);
+      } else {
+        currentTransportCost = BigDecimal.valueOf(currentQuantity).multiply(price);
+      }
+
+      TransportCost transportCost = transportCostsMultiKeyMap.get(estimatePosition, machineType, priceType);
 
       if (transportCost == null) {
         transportCost = new TransportCost();
         transportCost.setMachineType(machineType);
+        transportCost.setPriceType(priceType);
         transportCost.setWorkHoursCount(currentHoursCount);
+        transportCost.setDistanceCount(currentDistance);
+        transportCost.setQuantityCount(currentQuantity);
         transportCost.setCostValue(currentTransportCost);
 
-        transportCostsMultiKeyMap.put(estimatePosition, machineType, transportCost);
+        transportCostsMultiKeyMap.put(estimatePosition, machineType, priceType, transportCost);
       } else {
         double previousWorkHoursCount = transportCost.getWorkHoursCount();
+        double previousDistanceCount = transportCost.getDistanceCount();
+        double previousQuantityCount = transportCost.getQuantityCount();
         BigDecimal previousCostValue = transportCost.getCostValue();
 
         transportCost.setWorkHoursCount(previousWorkHoursCount + currentHoursCount);
+        transportCost.setDistanceCount(previousDistanceCount + currentDistance);
+        transportCost.setQuantityCount(previousQuantityCount + currentQuantity);
         transportCost.setCostValue(previousCostValue.add(currentTransportCost));
 
-        transportCostsMultiKeyMap.put(estimatePosition, machineType, transportCost);
+        transportCostsMultiKeyMap.put(estimatePosition, machineType, priceType, transportCost);
       }
 
     }
