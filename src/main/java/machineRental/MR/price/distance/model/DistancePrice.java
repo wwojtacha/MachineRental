@@ -77,5 +77,7 @@ public class DistancePrice extends DateCheckerObject {
     @Transient
     private MultipartFile file;
 
-
+    @NotNull
+    @Column(nullable = false)
+    private LocalDate modificationDate;
 }

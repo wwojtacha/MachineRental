@@ -86,7 +86,7 @@ public class DistancePriceService {
 
   public List<DistancePrice> readDataFromExcel(MultipartFile file) {
 
-    final List<DistancePrice> hourPricesFromExcelFile = new ArrayList<>();
+    final List<DistancePrice> distancePricesFromExcelFile = new ArrayList<>();
 
     if (excelHelper.isProperFileType(file)) {
       Workbook workbook = excelHelper.getWorkBook(file);
@@ -187,10 +187,11 @@ public class DistancePriceService {
         }
 
 //        createPriceId(distancePrice);
-        hourPricesFromExcelFile.add(distancePrice);
+        distancePrice.setModificationDate(LocalDate.now());
+        distancePricesFromExcelFile.add(distancePrice);
       }
     }
-    return hourPricesFromExcelFile;
+    return distancePricesFromExcelFile;
   }
 
   public LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
@@ -245,6 +246,7 @@ public class DistancePriceService {
     distancePriceChecker.checkEditability(id, dbPrice.get(), editedDistancePrice);
 
     editedDistancePrice.setId(id);
+    editedDistancePrice.setModificationDate(LocalDate.now());
     return distancePriceRepository.save(editedDistancePrice);
   }
 
@@ -422,6 +424,7 @@ public class DistancePriceService {
     LocalDate newDistancePriceEndDate = newDistancePrice.getEndDate();
     String newDistancePriceProjectCode = newDistancePrice.getProjectCode();
 
+    newDistancePrice.setModificationDate(LocalDate.now());
     distancePriceRepository.save(newDistancePrice);
 
     DistancePrice newDistancePriceFromDb = distancePriceRepository
@@ -430,6 +433,7 @@ public class DistancePriceService {
         );
 
     editedDistancePrice.setId(id);
+    editedDistancePrice.setModificationDate(LocalDate.now());
     distancePriceRepository.save(editedDistancePrice);
     Optional<DistancePrice> editedDistancePriceFromDb = distancePriceRepository.findById(id);
 
