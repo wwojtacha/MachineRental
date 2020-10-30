@@ -6,7 +6,8 @@ public enum WorkCode {
   CP("Time of driving"),
   PP("Duration of paid demurrage"),
   PN("Duration of non-paid demurrage"),
-  PZ("Duration of operator`s substitute activity");
+  PZ("Duration of operator`s substitute activity"),
+  PR("Duration of employee`s work time not related to operation of the machine");
 
   private String description;
 
