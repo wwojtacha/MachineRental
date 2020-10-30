@@ -184,6 +184,7 @@ public class DeliveryPriceService {
         }
 
 //        createPriceId(deliveryPrice);
+        deliveryPrice.setModificationDate(LocalDate.now());
         deliveryPricesFromExcelFile.add(deliveryPrice);
       }
     }
@@ -233,7 +234,8 @@ public class DeliveryPriceService {
     LocalDate startDate = deliveryPriceDto.getStartDate();
     LocalDate endDate = deliveryPriceDto.getEndDate();
     String projectCode = deliveryPriceDto.getProjectCode();
-    DeliveryPrice deliveryPrice = new DeliveryPrice(id, contractor, material, priceType, price, startDate, endDate, projectCode);
+    LocalDate modificationDate = deliveryPriceDto.getModificationDate();
+    DeliveryPrice deliveryPrice = new DeliveryPrice(id, contractor, material, priceType, price, startDate, endDate, projectCode, modificationDate);
 
     return deliveryPrice;
   }
@@ -248,7 +250,8 @@ public class DeliveryPriceService {
     LocalDate startDate = deliveryPrice.getStartDate();
     LocalDate endDate = deliveryPrice.getEndDate();
     String projectCode = deliveryPrice.getProjectCode();
-    DeliveryPriceDto deliveryPriceDto = new DeliveryPriceDto(id, contractor, material, priceType, price, startDate, endDate, projectCode);
+    LocalDate modificationDate = deliveryPrice.getModificationDate();
+    DeliveryPriceDto deliveryPriceDto = new DeliveryPriceDto(id, contractor, material, priceType, price, startDate, endDate, projectCode, modificationDate);
 
     return deliveryPriceDto;
   }
@@ -271,6 +274,7 @@ public class DeliveryPriceService {
     deliveryPriceChecker.checkEditability(id, dbPriceOptional.get(), editedDeliveryPrice);
 
     editedDeliveryPrice.setId(id);
+    editedDeliveryPrice.setModificationDate(LocalDate.now());
     deliveryPriceRepository.save(editedDeliveryPrice);
 
     return convertToDto(editedDeliveryPrice);
@@ -426,6 +430,7 @@ public class DeliveryPriceService {
     LocalDate newDeliveryPriceEndDate = newDeliveryPrice.getEndDate();
     String newDeliveryPriceProjectCode = newDeliveryPrice.getProjectCode();
 
+    newDeliveryPrice.setModificationDate(LocalDate.now());
     deliveryPriceRepository.save(newDeliveryPrice);
 
     DeliveryPrice newDeliveryPriceFromDb = deliveryPriceRepository
@@ -434,6 +439,7 @@ public class DeliveryPriceService {
         );
 
     editedDeliveryPrice.setId(id);
+    editedDeliveryPrice.setModificationDate(LocalDate.now());
     deliveryPriceRepository.save(editedDeliveryPrice);
     Optional<DeliveryPrice> editedDeliveryPriceFromDb = deliveryPriceRepository.findById(id);
 

@@ -61,4 +61,8 @@ public class DeliveryPrice extends DateCheckerObject {
   @Column(nullable = false)
   private String projectCode;
 
+  @NotNull
+  @Column(nullable = false)
+  private LocalDate modificationDate;
+
 }

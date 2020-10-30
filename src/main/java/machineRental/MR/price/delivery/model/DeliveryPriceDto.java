@@ -33,7 +33,9 @@ public class DeliveryPriceDto {
 
   private String projectCode;
 
-  public DeliveryPriceDto(final Long id, final Client contractor, final Material material, final PriceType priceType, final BigDecimal price, final LocalDate startDate, final LocalDate endDate, final String projectCode) {
+  private LocalDate modificationDate;
+
+  public DeliveryPriceDto(final Long id, final Client contractor, final Material material, final PriceType priceType, final BigDecimal price, final LocalDate startDate, final LocalDate endDate, final String projectCode, final LocalDate modificationDate) {
     this.id = id;
     this.contractor = contractor;
     this.material = material;
@@ -42,6 +44,7 @@ public class DeliveryPriceDto {
     this.startDate = startDate;
     this.endDate = endDate;
     this.projectCode = projectCode;
+    this.modificationDate = modificationDate;
   }
 
 }
