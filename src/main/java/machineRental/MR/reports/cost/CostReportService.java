@@ -12,6 +12,8 @@ import machineRental.MR.reports.cost.delivery.DeliveryCostCalculator;
 import machineRental.MR.reports.cost.delivery.TotalDeliveryCost;
 import machineRental.MR.reports.cost.equipment.EquipmentCostCalculator;
 import machineRental.MR.reports.cost.equipment.TotalEquipmentCost;
+import machineRental.MR.reports.cost.labour.LabourCostCalculator;
+import machineRental.MR.reports.cost.labour.TotalLabourCost;
 import machineRental.MR.reports.cost.transport.TotalTransportCost;
 import machineRental.MR.reports.cost.transport.TransportCostCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class CostReportService {
   @Autowired
   private TransportCostCalculator transportCostCalculator;
 
+  @Autowired
+  private LabourCostCalculator labourCostCalculator;
+
 
   /**
    * @param startDate Date after which data should be found.
@@ -53,6 +58,8 @@ public class CostReportService {
     Map<EstimatePosition, TotalTransportCost> estimatePositionTotalTransportCostMap = transportCostCalculator.getTotalTransportCostByEstimatePosition(startDate, endDate, projectCode);
 
     Map<EstimatePosition, TotalDeliveryCost> estimatePositionTotalDeliveryCostMap = deliveryCostCalculator.getTotalDeliveryCostByEstimatePosition(startDate, endDate, projectCode);
+
+    Map<EstimatePosition, TotalLabourCost> estimatePositionTotalLabourCostMap = labourCostCalculator.getTotalLabourCostForEstimatePosition(startDate, endDate, projectCode);
 
     Map<EstimatePosition, Double> estimatePositionToTotalDailyReportQuantity = dailyReportService.getDailyReportQuantityPerEstimatePosition(startDate, endDate, projectCode);
 
@@ -102,6 +109,17 @@ public class CostReportService {
         costReport.setTotalDeliveryCost(totalDeliveryCost);
       } else {
         costReport.setTotalDeliveryCost(totalDeliveryCost);
+      }
+
+      TotalLabourCost totalLabourCost = estimatePositionTotalLabourCostMap.get(estimatePosition);
+      if (totalLabourCost == null) {
+        totalLabourCost = new TotalLabourCost();
+        totalLabourCost.setTotalWorkHoursCount(0);
+        totalLabourCost.setTotalCostValue(BigDecimal.valueOf(0));
+
+        costReport.setTotalLabourCost(totalLabourCost);
+      } else {
+        costReport.setTotalLabourCost(totalLabourCost);
       }
 
       costReports.add(costReport);
