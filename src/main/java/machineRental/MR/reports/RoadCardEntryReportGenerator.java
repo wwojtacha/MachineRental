@@ -159,7 +159,7 @@ public class RoadCardEntryReportGenerator extends ExcelReportGenerator{
       rowCell.setCellValue(roadCardEntry.getLoadingPlace());
 
       rowCell = row.createCell(11);
-      rowCell.setCellValue(roadCardEntry.getMaterial().getType());
+      rowCell.setCellValue(roadCardEntry.getMaterial());
 
       rowCell = row.createCell(12);
       rowCell.setCellValue(roadCardEntry.getUnloadingPlace());

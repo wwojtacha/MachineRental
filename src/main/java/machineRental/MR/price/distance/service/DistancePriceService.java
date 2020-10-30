@@ -402,7 +402,7 @@ public class DistancePriceService {
             roadCardEntry.getStartHour(),
             roadCardEntry.getEndHour(),
             roadCardEntry.getLoadingPlace(),
-            roadCardEntry.getMaterial().getType(),
+            roadCardEntry.getMaterial(),
             roadCardEntry.getUnloadingPlace(),
             roadCardEntry.getQuantity(),
             roadCardEntry.getMeasureUnit(),

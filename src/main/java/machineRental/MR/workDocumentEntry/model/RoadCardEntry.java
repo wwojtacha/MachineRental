@@ -46,9 +46,8 @@ public class RoadCardEntry extends WorkDocumentEntry {
   private String loadingPlace;
 
   @NotNull
-  @ManyToOne
-  @JoinColumn(name = "material_id")
-  private Material material;
+  @Column
+  private String material;
 
   @NotNull
   @Column
