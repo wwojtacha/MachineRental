@@ -173,6 +173,7 @@ public class HourPriceService {
         }
 
 //        createPriceId(hourPrice);
+        hourPrice.setModificationDate(LocalDate.now());
         hourPricesFromExcelFile.add(hourPrice);
       }
     }
@@ -229,6 +230,7 @@ public class HourPriceService {
     hourPriceChecker.checkEditability(id, dbPrice.get(), editedHourPrice);
 
     editedHourPrice.setId(id);
+    editedHourPrice.setModificationDate(LocalDate.now());
     return hourPriceRepository.save(editedHourPrice);
   }
 
@@ -390,7 +392,7 @@ public class HourPriceService {
     LocalDate newHourPriceEndDate = newHourPrice.getEndDate();
     String newHourPriceProjectCode = newHourPrice.getProjectCode();
 
-
+    newHourPrice.setModificationDate(LocalDate.now());
     hourPriceRepository.save(newHourPrice);
 
     HourPrice newHourPriceFromDb = hourPriceRepository
@@ -400,6 +402,7 @@ public class HourPriceService {
 
 
     editedHourPrice.setId(id);
+    editedHourPrice.setModificationDate(LocalDate.now());
     hourPriceRepository.save(editedHourPrice);
     Optional<HourPrice> editedHourPriceFromDb = hourPriceRepository.findById(id);
 
