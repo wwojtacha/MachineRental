@@ -6,7 +6,7 @@ public enum PriceType {
   WITH_OPERATOR("Price for machine and operator"),
   WITH_FUEL("Price for machine and fuel"),
   WITH_OPERATOR_AND_FUEL("Price for machine, operator and fuel"),
-  DISTANCE("Price for distance unit (km)"),
+  DISTANCE_KM("Price for distance unit of 1 km"),
   DISTANCE_M3("Price for road card transport of 1 m3 of material"),
   DISTANCE_MG("Price for road card transport of 1 Mg of material"),
   DISTANCE_RUN("Price for 1 run of vehicle recorded at road card"),

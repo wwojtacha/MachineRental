@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.validation.constraints.NotNull;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.machineType.model.MachineType;
 import machineRental.MR.price.PriceType;
@@ -65,7 +64,7 @@ public class TransportCostCalculator {
 
       BigDecimal currentTransportCost = BigDecimal.valueOf(0);
 
-      if (PriceType.DISTANCE == priceType) {
+      if (PriceType.DISTANCE_KM == priceType) {
         currentTransportCost = BigDecimal.valueOf(currentDistance).multiply(price);
       } else {
         currentTransportCost = BigDecimal.valueOf(currentQuantity).multiply(price);
