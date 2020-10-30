@@ -9,6 +9,7 @@ import machineRental.MR.dailyReport.DailyReportService;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.estimate.service.EstimatePositionService;
 import machineRental.MR.reports.cost.delivery.DeliveryCostCalculator;
+import machineRental.MR.reports.cost.delivery.TotalDeliveryCost;
 import machineRental.MR.reports.cost.equipment.EquipmentCostCalculator;
 import machineRental.MR.reports.cost.equipment.TotalEquipmentCost;
 import machineRental.MR.reports.cost.transport.TotalTransportCost;
@@ -51,7 +52,7 @@ public class CostReportService {
 
     Map<EstimatePosition, TotalTransportCost> estimatePositionTotalTransportCostMap = transportCostCalculator.getTotalTransportCostByEstimatePosition(startDate, endDate, projectCode);
 
-    Map<EstimatePosition, BigDecimal> estimatePositionTotalDeliveryCostMap = deliveryCostCalculator.getTotalDeliveryCostPerEstimatePosition(startDate, endDate, projectCode);
+    Map<EstimatePosition, TotalDeliveryCost> estimatePositionTotalDeliveryCostMap = deliveryCostCalculator.getTotalDeliveryCostByEstimatePosition(startDate, endDate, projectCode);
 
     Map<EstimatePosition, Double> estimatePositionToTotalDailyReportQuantity = dailyReportService.getDailyReportQuantityPerEstimatePosition(startDate, endDate, projectCode);
 
@@ -92,9 +93,12 @@ public class CostReportService {
         costReport.setTotalTransportCost(totalTransportCost);
       }
 
-      BigDecimal totalDeliveryCost = estimatePositionTotalDeliveryCostMap.get(estimatePosition);
+      TotalDeliveryCost totalDeliveryCost = estimatePositionTotalDeliveryCostMap.get(estimatePosition);
       if (totalDeliveryCost == null) {
-        totalDeliveryCost = BigDecimal.valueOf(0);
+        totalDeliveryCost = new TotalDeliveryCost();
+        totalDeliveryCost.setDeliveryCosts(new ArrayList<>());
+        totalDeliveryCost.setTotalCostValue(BigDecimal.valueOf(0));
+
         costReport.setTotalDeliveryCost(totalDeliveryCost);
       } else {
         costReport.setTotalDeliveryCost(totalDeliveryCost);
