@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.machineType.model.MachineType;
+import machineRental.MR.workDocumentEntry.WorkCode;
+import machineRental.MR.workDocumentEntry.WorkDocumentEntryValidator;
 import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import machineRental.MR.workDocumentEntry.service.WorkReportEntryService;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -50,12 +52,24 @@ public class EquipmentCostCalculator {
 
     for (WorkReportEntry workReportEntry : workReportEntries) {
 
+      WorkCode workCode = workReportEntry.getWorkCode();
+
+      //      do not calculate neither cost nor hour count of PR activity. This activity is calculated as TotalLabourCost
+      if (WorkCode.PR == workCode) {
+        continue;
+      }
+
       EstimatePosition estimatePosition = workReportEntry.getEstimatePosition();
       MachineType machineType = workReportEntry.getWorkDocument().getMachine().getMachineType();
+
       double currentHoursCount = (double) Duration.between(workReportEntry.getStartHour(), workReportEntry.getEndHour()).toSeconds() / 3600;
       BigDecimal currentEquipmentCost = BigDecimal.valueOf(currentHoursCount).multiply(workReportEntry.getHourPrice().getPrice());
 
       EquipmentCost equipmentCost = equipmentCostsMultiKeyMap.get(estimatePosition, machineType);
+
+      if (!WorkDocumentEntryValidator.EXPLOITATION_WORK_CODES.contains(workReportEntry.getWorkCode())) {
+        currentHoursCount = 0;
+      }
 
       if (equipmentCost == null) {
         equipmentCost = new EquipmentCost();

@@ -18,7 +18,7 @@ import org.springframework.validation.FieldError;
 @Service
 public class WorkDocumentEntryValidator {
 
-  private static final Set<WorkCode> EXPLOITATION_WORK_CODES = Collections.unmodifiableSet(EnumSet.of(WorkCode.PS, WorkCode.PX, WorkCode.CP));
+  public static final Set<WorkCode> EXPLOITATION_WORK_CODES = Collections.unmodifiableSet(EnumSet.of(WorkCode.PS, WorkCode.PX, WorkCode.CP));
 
 
   public void validateWorkingTime(Collection<WorkDocumentEntryForValidation> workDocumentEntriesForValidation, Collection<WorkDocumentEntryForValidation> allWorkDocumentEntriesForValidation, BindingResult bindingResult) {

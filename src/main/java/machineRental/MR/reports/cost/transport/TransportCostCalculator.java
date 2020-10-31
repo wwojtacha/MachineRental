@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.machineType.model.MachineType;
 import machineRental.MR.price.PriceType;
 import machineRental.MR.price.distance.model.DistancePrice;
+import machineRental.MR.workDocumentEntry.WorkCode;
+import machineRental.MR.workDocumentEntry.WorkDocumentEntryValidator;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.workDocumentEntry.service.RoadCardEntryService;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -52,6 +55,13 @@ public class TransportCostCalculator {
 
     for (RoadCardEntry roadCardEntry : roadCardEntries) {
 
+      WorkCode workCode = roadCardEntry.getWorkCode();
+
+//      do not calculate neither cost nor hour count of PR activity. This activity is calculated as TotalLabourCost
+      if (WorkCode.PR == workCode) {
+        continue;
+      }
+
       EstimatePosition estimatePosition = roadCardEntry.getEstimatePosition();
       MachineType machineType = roadCardEntry.getWorkDocument().getMachine().getMachineType();
       DistancePrice distancePrice = roadCardEntry.getDistancePrice();
@@ -71,6 +81,10 @@ public class TransportCostCalculator {
       }
 
       TransportCost transportCost = transportCostsMultiKeyMap.get(estimatePosition, machineType, priceType);
+
+      if (!WorkDocumentEntryValidator.EXPLOITATION_WORK_CODES.contains(workCode)) {
+        currentHoursCount = 0;
+      }
 
       if (transportCost == null) {
         transportCost = new TransportCost();
