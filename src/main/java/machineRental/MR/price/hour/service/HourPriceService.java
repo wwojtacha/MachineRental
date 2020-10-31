@@ -442,5 +442,9 @@ public class HourPriceService {
 // if price is not used in any work report entry it can be deleted
     hourPriceRepository.deleteById(id);
   }
+
+  public boolean isMachineUsed(Long machineId) {
+    return hourPriceRepository.existsByMachine_Id(machineId);
+  }
 }
 

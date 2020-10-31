@@ -251,4 +251,8 @@ public class OrderService {
 
     return dbOrder.get();
   }
+
+  public boolean isMachineUsed(Long machineId) {
+    return orderRepository.existsByMachine_Id(machineId);
+  }
 }

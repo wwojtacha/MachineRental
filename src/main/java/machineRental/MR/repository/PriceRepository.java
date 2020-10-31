@@ -11,4 +11,5 @@ public interface PriceRepository extends JpaRepository<Price, String> {
 
     Page<Price> findByMachine_InternalIdContainingAndPriceTypeContaining(String machineInternalId, String priceType, Pageable pageable);
 
+    boolean existsByMachine_Id(Long machineId);
 }

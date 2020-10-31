@@ -1,10 +1,16 @@
 package machineRental.MR.machine.service;
 
+import machineRental.MR.exception.AlreadyUsedException;
 import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.machine.model.Machine;
+import machineRental.MR.order.service.OrderService;
+import machineRental.MR.price.distance.service.DistancePriceService;
+import machineRental.MR.price.hour.service.HourPriceService;
+import machineRental.MR.price.rental.service.PriceService;
 import machineRental.MR.repository.MachineRepository;
 import machineRental.MR.repository.MachineTypeRepository;
+import machineRental.MR.workDocument.service.WorkDocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +28,21 @@ public class MachineService {
 
     @Autowired
     private MachineTypeRepository machineTypeRepository;
+
+    @Autowired
+    private WorkDocumentService workDocumentService;
+
+    @Autowired
+    private HourPriceService hourPriceService;
+
+    @Autowired
+    private DistancePriceService distancePriceService;
+
+    @Autowired
+    private PriceService priceService;
+
+    @Autowired
+    private OrderService orderService;
 
 
     public Machine create(Machine machine, BindingResult bindingResult) {
@@ -89,5 +110,32 @@ public class MachineService {
         if (bindingResult.hasErrors()) {
             throw new BindingResultException(bindingResult);
         }
+    }
+
+    public void delete(Long id) {
+        Optional<Machine> dbmachine = machineRepository.findById(id);
+
+        if (!dbmachine.isPresent()) {
+            throw new NotFoundException(String.format("Machine with id \'%s\' doesn`t exist!", id));
+        }
+
+// if machine is used in any work document or hour price or distance price it must not be deleted
+        if (isMachineAlreadyUsed(id)) {
+            throw new AlreadyUsedException(String.format("Machine with number %s is already used in at least one document or price.", dbmachine.get().getInternalId()));
+        }
+
+        machineRepository.deleteById(id);
+    }
+
+    private boolean isMachineAlreadyUsed(Long machineId) {
+        return workDocumentService.isMachineUsed(machineId)
+            || isMachineAlreadyUsedInPriceLists(machineId)
+            || orderService.isMachineUsed(machineId);
+    }
+
+    private boolean isMachineAlreadyUsedInPriceLists(Long machineId) {
+        return hourPriceService.isMachineUsed(machineId)
+            || distancePriceService.isMachineUsed(machineId)
+            || priceService.isMachineUsed(machineId);
     }
 }

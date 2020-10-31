@@ -481,5 +481,9 @@ public class DistancePriceService {
 // if price is not used in any road card entry it can be deleted
     distancePriceRepository.deleteById(id);
   }
+
+  public boolean isMachineUsed(Long machineId) {
+    return distancePriceRepository.existsByMachine_Id(machineId);
+  }
 }
 

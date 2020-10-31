@@ -31,4 +31,6 @@ public interface DistancePriceRepository extends JpaRepository<DistancePrice, Lo
     List<DistancePrice> findAllByMachineInternalId(String machineInternalId);
 
   List<DistancePrice> findByProjectCode(String projectCode);
+
+  boolean existsByMachine_Id(Long machineId);
 }

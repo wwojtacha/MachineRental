@@ -57,4 +57,10 @@ public class MachineController {
         return machineService.update(id, machine, bindingResult);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable Long id) {
+        machineService.delete(id);
+    }
+
 }

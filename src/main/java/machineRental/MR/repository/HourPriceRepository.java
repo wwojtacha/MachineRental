@@ -27,4 +27,6 @@ public interface HourPriceRepository extends JpaRepository<HourPrice, Long> {
       String projectCode);
 
   List<HourPrice> findByProjectCode(String projectCode);
+
+  boolean existsByMachine_Id(Long machineId);
 }

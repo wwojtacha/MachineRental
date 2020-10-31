@@ -29,4 +29,6 @@ public interface WorkDocumentRepository extends JpaRepository<WorkDocument, Stri
       String invoiceNumber,
       Pageable pageable);
 
+  boolean existsByMachine_Id(Long machineId);
+
 }

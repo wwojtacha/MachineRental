@@ -23,4 +23,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByStartDateAfterAndMachine_InternalIdAndDbPriceTrue(LocalDate startDate, String machineInternalId);
 
 
+    boolean existsByMachine_Id(Long machineId);
 }

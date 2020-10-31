@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import machineRental.MR.excel.ExcelHelper;
-import machineRental.MR.price.exception.PriceAlreadyUsedException;
+import machineRental.MR.exception.AlreadyUsedException;
 import machineRental.MR.price.rental.exception.NotUniquePriceYearAndMachineId;
 import machineRental.MR.excel.WrongDataTypeException;
 import org.springframework.data.domain.Pageable;
@@ -256,7 +256,7 @@ public class PriceService {
     }
 
     if (isPriceUsedInOrder(dbPrice.get())) {
-      throw new PriceAlreadyUsedException(String.format("Price with id: \'%s\' is already used in at least in one order thus can not be deleted.", id));
+      throw new AlreadyUsedException(String.format("Price with id: \'%s\' is already used in at least in one order thus can not be deleted.", id));
     }
     priceRepository.deleteById(id);
   }
@@ -293,6 +293,10 @@ public class PriceService {
 
     String priceId = yearString + machineIdString + priceType + priceValueString;
     price.setId(priceId);
+  }
+
+  public boolean isMachineUsed(Long machineId) {
+    return priceRepository.existsByMachine_Id(machineId);
   }
 
 }

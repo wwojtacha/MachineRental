@@ -121,4 +121,8 @@ public class WorkDocumentService {
     workDocumentRepository.deleteById(workDocumentId);
 
   }
+
+  public boolean isMachineUsed(Long machineId) {
+    return workDocumentRepository.existsByMachine_Id(machineId);
+  }
 }
