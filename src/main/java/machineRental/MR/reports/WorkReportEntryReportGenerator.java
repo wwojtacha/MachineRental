@@ -1,24 +1,14 @@
 package machineRental.MR.reports;
 
 import java.awt.Desktop;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import machineRental.MR.price.hour.exception.IncorrectDateException;
-import machineRental.MR.repository.WorkReportEntryRepository;
 import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import machineRental.MR.workDocumentEntry.service.WorkReportEntryService;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -124,10 +114,6 @@ public class WorkReportEntryReportGenerator extends ExcelReportGenerator{
     headerCell = headerRow.createCell(19);
     headerCell.setCellValue("Accepted by");
 
-//    for (int i = 0; i <= 10; i++) {
-//      Cell headerCell = headerRow.createCell(i);
-//      headerCell.setCellValue();
-//    }
   }
 
   @Override
@@ -203,23 +189,6 @@ public class WorkReportEntryReportGenerator extends ExcelReportGenerator{
       rowNumber++;
 
     }
-  }
-
-  @Override
-  public ByteArrayInputStream exportExcelReport(LocalDate startDate, LocalDate endDate) throws IOException {
-
-    XSSFWorkbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("WorkReportEntries");
-
-    writeHeaderLine(sheet);
-
-    writeDataLines(startDate, endDate, sheet);
-
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-    workbook.write(out);
-
-    return new ByteArrayInputStream(out.toByteArray());
   }
 }
 

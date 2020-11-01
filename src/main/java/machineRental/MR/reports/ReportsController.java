@@ -34,7 +34,9 @@ public class ReportsController {
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
       @RequestParam(name = "endDate") LocalDate endDate) throws IOException {
 
-    try (ByteArrayInputStream in = workReportEntryReportGenerator.exportExcelReport(startDate, endDate)) {
+    String sheetName = "WorkReportEntries";
+
+    try (ByteArrayInputStream in = workReportEntryReportGenerator.exportExcelReport(startDate, endDate, sheetName)) {
       HttpHeaders headers = new HttpHeaders();
       headers.add("Content-Disposition", "attachment; filename=workReportEntries.xlsx");
       headers.add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -55,7 +57,9 @@ public class ReportsController {
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
       @RequestParam(name = "endDate") LocalDate endDate) throws IOException {
 
-    try (ByteArrayInputStream in = roadCardEntryReportGenerator.exportExcelReport(startDate, endDate)) {
+    String sheetName = "RoadCardEntries";
+
+    try (ByteArrayInputStream in = roadCardEntryReportGenerator.exportExcelReport(startDate, endDate, sheetName)) {
       HttpHeaders headers = new HttpHeaders();
       headers.add("Content-Disposition", "attachment; filename=roadCardEntries.xlsx");
       headers.add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -76,7 +80,9 @@ public class ReportsController {
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
       @RequestParam(name = "endDate") LocalDate endDate) throws IOException {
 
-    try (ByteArrayInputStream in = deliveryDocumentEntryReportGenerator.exportExcelReport(startDate, endDate)) {
+    String sheetName = "DelivertDocumentEntries";
+
+    try (ByteArrayInputStream in = deliveryDocumentEntryReportGenerator.exportExcelReport(startDate, endDate, sheetName)) {
       HttpHeaders headers = new HttpHeaders();
       headers.add("Content-Disposition", "attachment; filename=deliveryDocumentEntries.xlsx");
       headers.add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

@@ -1,18 +1,12 @@
 package machineRental.MR.reports;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import machineRental.MR.delivery.entry.model.DeliveryDocumentEntry;
 import machineRental.MR.delivery.entry.service.DeliveryDocumentEntryService;
-import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,23 +15,6 @@ public class DeliveryDocumentEntryReportGenerator extends ExcelReportGenerator{
 
   @Autowired
   private DeliveryDocumentEntryService deliveryDocumentEntryService;
-
-  @Override
-  public ByteArrayInputStream exportExcelReport(LocalDate startDate, LocalDate endDate) throws IOException {
-
-    XSSFWorkbook workbook = new XSSFWorkbook();
-    Sheet sheet = workbook.createSheet("RoadCardEntries");
-
-    writeHeaderLine(sheet);
-
-    writeDataLines(startDate, endDate, sheet);
-
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-    workbook.write(out);
-
-    return new ByteArrayInputStream(out.toByteArray());
-  }
 
   @Override
   void writeHeaderLine(Sheet sheet) {
@@ -85,10 +62,6 @@ public class DeliveryDocumentEntryReportGenerator extends ExcelReportGenerator{
     headerCell = headerRow.createCell(13);
     headerCell.setCellValue("Invoice number");
 
-//    for (int i = 0; i <= 10; i++) {
-//      Cell headerCell = headerRow.createCell(i);
-//      headerCell.setCellValue();
-//    }
   }
 
   @Override
