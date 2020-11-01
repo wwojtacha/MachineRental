@@ -14,7 +14,6 @@ import machineRental.MR.workDocument.model.WorkDocument;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.geo.Distance;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -135,13 +134,6 @@ public class DistancePriceChecker implements PriceChecker {
 
     return distance >= rangeMin && distance <= rangeMax;
   }
-
-
-
-
-
-
-
 
   public boolean areSameDistanceRanges(DistancePrice editedDistancePrice, DistancePrice dbPrice) {
     return ((Double) dbPrice.getRangeMin()).equals((Double) editedDistancePrice.getRangeMin()) && ((Double) dbPrice.getRangeMax()).equals((Double) editedDistancePrice.getRangeMax());

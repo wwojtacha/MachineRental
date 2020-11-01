@@ -29,7 +29,6 @@ import machineRental.MR.price.PriceType;
 import machineRental.MR.price.hour.exception.IncorrectDateException;
 import machineRental.MR.price.hour.exception.NothingChangedException;
 import machineRental.MR.price.hour.exception.OverlappingDatesException;
-import machineRental.MR.price.hour.model.HourPrice;
 import machineRental.MR.repository.ClientRepository;
 import machineRental.MR.repository.CostCodeRepository;
 import machineRental.MR.repository.DeliveryDocumentEntryRepository;
@@ -265,10 +264,6 @@ public class DeliveryPriceService {
 
     DeliveryPrice editedDeliveryPrice = convertToEntity(editedDeliveryPriceDto);
 
-//    if (!isOnlyPriceValueDifferent(dbPriceOptional.get(), editedDeliveryPrice)) {
-//      deliveryPriceChecker.checkPriceUsage(id);
-//    }
-
     validateDeliveryPriceConsistency(id, editedDeliveryPrice);
 
     deliveryPriceChecker.checkEditability(id, dbPriceOptional.get(), editedDeliveryPrice);
@@ -278,16 +273,6 @@ public class DeliveryPriceService {
     deliveryPriceRepository.save(editedDeliveryPrice);
 
     return convertToDto(editedDeliveryPrice);
-  }
-
-  private boolean isOnlyPriceValueDifferent (DeliveryPrice dbPrice, DeliveryPrice editedPrice) {
-    return dbPrice.getContractor().equals(editedPrice.getContractor())
-        && dbPrice.getMaterial().equals(editedPrice.getMaterial())
-        && dbPrice.getPriceType() == editedPrice.getPriceType()
-        && dbPrice.getStartDate().isEqual(editedPrice.getStartDate())
-        && dbPrice.getEndDate().isEqual(editedPrice.getEndDate())
-        && dbPrice.getProjectCode().equals(editedPrice.getProjectCode())
-        && !dbPrice.getPrice().equals(editedPrice.getPrice());
   }
 
   private void validateDeliveryPriceConsistency(Long id, DeliveryPrice deliveryPrice) {

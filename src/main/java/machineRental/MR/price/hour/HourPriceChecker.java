@@ -2,9 +2,6 @@ package machineRental.MR.price.hour;
 
 import java.time.LocalDate;
 import java.util.List;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.price.PriceChecker;
 import machineRental.MR.price.PriceType;
