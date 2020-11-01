@@ -4,17 +4,16 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import machineRental.MR.excel.ExcelHelper;
-import machineRental.MR.exception.AlreadyUsedException;
 import machineRental.MR.price.rental.exception.NotUniquePriceYearAndMachineId;
 import machineRental.MR.excel.WrongDataTypeException;
 import org.springframework.data.domain.Pageable;
 import machineRental.MR.exception.*;
 import machineRental.MR.machine.model.Machine;
 import machineRental.MR.order.model.Order;
-import machineRental.MR.price.rental.model.Price;
+import machineRental.MR.price.rental.model.RentalPrice;
 import machineRental.MR.repository.MachineRepository;
 import machineRental.MR.repository.OrderRepository;
-import machineRental.MR.repository.PriceRepository;
+import machineRental.MR.repository.RentalPriceRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -35,10 +34,10 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class PriceService {
+public class RentalPriceService {
 
   @Autowired
-  private PriceRepository priceRepository;
+  private RentalPriceRepository rentalPriceRepository;
 
   @Autowired
   private MachineRepository machineRepository;
@@ -49,13 +48,13 @@ public class PriceService {
   @Autowired
   private ExcelHelper excelHelper;
 
-  public List<Price> findAll() {
-    return (List<Price>) priceRepository.findAll();
+  public List<RentalPrice> findAll() {
+    return (List<RentalPrice>) rentalPriceRepository.findAll();
   }
 
-  public List<Price> readDataFromExcel(MultipartFile file) {
+  public List<RentalPrice> readDataFromExcel(MultipartFile file) {
 
-    final List<Price> pricesFromExcelFile = new ArrayList<>();
+    final List<RentalPrice> pricesFromExcelFile = new ArrayList<>();
 
     if (excelHelper.isProperFileType(file)) {
       Workbook workbook = excelHelper.getWorkBook(file);
@@ -64,20 +63,20 @@ public class PriceService {
       rows.next();
       while (rows.hasNext()) {
         Row row = rows.next();
-        Price price = new Price();
+        RentalPrice rentalPrice = new RentalPrice();
         if (row.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC && row.getCell(0).getNumericCellValue() > 1900 && row.getCell(0).getNumericCellValue() < 2100) {
           double cellDoubleValue = row.getCell(0).getNumericCellValue();
           String cellStringFromDouble = String.valueOf(cellDoubleValue);
           String properStringFormat = cellStringFromDouble.substring(0, cellStringFromDouble.length() - 2);
           Integer cellInteger = Integer.parseInt(properStringFormat);
-          price.setYear(cellInteger);
+          rentalPrice.setYear(cellInteger);
         } else {
           throw new WrongDataTypeException("Wrong data type in column \'year\'. It must be a number between 1900 and 2100.");
         }
 
         if (row.getCell(1).getCellType() == Cell.CELL_TYPE_STRING) {
           String cellValue = String.valueOf(row.getCell(1));
-          price.setPriceType(cellValue);
+          rentalPrice.setPriceType(cellValue);
         } else {
           throw new WrongDataTypeException("Wrong data type in column \'priceType\'. It must be a string (text)!");
         }
@@ -85,7 +84,7 @@ public class PriceService {
         if (row.getCell(2).getCellType() == Cell.CELL_TYPE_NUMERIC) {
           double cellDoubleValue = row.getCell(2).getNumericCellValue();
           BigDecimal cellBigDecimal = BigDecimal.valueOf(cellDoubleValue);
-          price.setPrice(cellBigDecimal);
+          rentalPrice.setPrice(cellBigDecimal);
         } else {
           throw new WrongDataTypeException("Wrong data type in column \'price\'. It must be a number!");
         }
@@ -114,7 +113,7 @@ public class PriceService {
           if (isMachinePresentInDb(cellLong)) {
             Machine machine = new Machine();
             machine.setId(cellLong);
-            price.setMachine(machine);
+            rentalPrice.setMachine(machine);
           } else {
             throw new NotFoundException(String.format("Machine with id \'%s\' doesn`t exist. File not uploaded to data base.", cellLong));
           }
@@ -122,8 +121,8 @@ public class PriceService {
           throw new WrongDataTypeException("Wrong data type in column \'machineId\'. It must be a number!");
         }
 
-        createPriceId(price);
-        pricesFromExcelFile.add(price);
+        createPriceId(rentalPrice);
+        pricesFromExcelFile.add(rentalPrice);
       }
     }
     return pricesFromExcelFile;
@@ -144,21 +143,21 @@ public class PriceService {
   private boolean isPriceUnique(MultipartFile file) {
 
     boolean isUnique = false;
-    final List<Price> pricesFromDb = findAll();
-    final List<Price> pricesFromExcelFile = readDataFromExcel(file);
-    final List<Price> pricesFromDbAndExcelFile = new ArrayList<>();
+    final List<RentalPrice> pricesFromDb = findAll();
+    final List<RentalPrice> pricesFromExcelFile = readDataFromExcel(file);
+    final List<RentalPrice> pricesFromDbAndExcelFile = new ArrayList<>();
     pricesFromDbAndExcelFile.addAll(pricesFromDb);
     pricesFromDbAndExcelFile.addAll(pricesFromExcelFile);
 
     List<String> pricesId = new ArrayList<>();
 
-    for (Price price : pricesFromDbAndExcelFile) {
+    for (RentalPrice rentalPrice : pricesFromDbAndExcelFile) {
 //      Integer year = sellPrice.getYear();
 //      Long machineId = sellPrice.getMachine().getId();
 //      String yearString = String.valueOf(year);
 //      String machineIdString = String.valueOf(machineId);
 //      String priceId = yearString + machineIdString;
-      String priceId = price.getId();
+      String priceId = rentalPrice.getId();
       pricesId.add(priceId);
     }
 
@@ -185,24 +184,24 @@ public class PriceService {
 
   public void saveDataFromExcelFile(MultipartFile file) {
 
-    List<Price> prices = readDataFromExcel(file);
+    List<RentalPrice> rentalPrices = readDataFromExcel(file);
 
     if (isPriceUnique(file)) {
-      for (Price price : prices) {
-        createPriceId(price);
-        priceRepository.save(price);
+      for (RentalPrice rentalPrice : rentalPrices) {
+        createPriceId(rentalPrice);
+        rentalPriceRepository.save(rentalPrice);
       }
     }
   }
 
-  public Price update(String id, Price price, BindingResult bindingResult) {
+  public RentalPrice update(String id, RentalPrice rentalPrice, BindingResult bindingResult) {
 
-    Optional<Price> dbPrice = priceRepository.findById(id);
+    Optional<RentalPrice> dbPrice = rentalPriceRepository.findById(id);
     if (!dbPrice.isPresent()) {
       throw new NotFoundException(String.format("Price with id \'%s\' doesn`t exist.", id));
     }
 
-    if (isPriceUsedInOrder(price)) {
+    if (isPriceUsedInOrder(rentalPrice)) {
       bindingResult.addError(new FieldError("sellPrice", "id", String.format("Price with id \'%s\' is already used in at least one order thus cannot be edited.", id)));
     }
 
@@ -210,24 +209,24 @@ public class PriceService {
       throw new BindingResultException(bindingResult);
     }
 
-    Machine machine = price.getMachine();
+    Machine machine = rentalPrice.getMachine();
     Long machineId = machine.getId();
     String machineInternalId = machine.getInternalId();
 
 
     if (machineId == null) {
       Machine dbMachine = machineRepository.findByInternalId(machineInternalId);
-      price.setMachine(dbMachine);
+      rentalPrice.setMachine(dbMachine);
     }
 
-    price.setId(id);
-    return priceRepository.save(price);
+    rentalPrice.setId(id);
+    return rentalPriceRepository.save(rentalPrice);
   }
 
-  private boolean isPriceUsedInOrder(Price price) {
-    Integer year = price.getYear();
+  private boolean isPriceUsedInOrder(RentalPrice rentalPrice) {
+    Integer year = rentalPrice.getYear();
     LocalDate localDate = LocalDate.of(year, 1, 1);
-    List<Order> orders = orderRepository.findByStartDateAfterAndMachine_InternalIdAndDbPriceTrue(localDate, price.getMachine().getInternalId());
+    List<Order> orders = orderRepository.findByStartDateAfterAndMachine_InternalIdAndDbPriceTrue(localDate, rentalPrice.getMachine().getInternalId());
     return !orders.isEmpty();
   }
 
@@ -250,7 +249,7 @@ public class PriceService {
 //  }
 
   public void delete(String id) {
-    Optional<Price> dbPrice = priceRepository.findById(id);
+    Optional<RentalPrice> dbPrice = rentalPriceRepository.findById(id);
     if (!dbPrice.isPresent()) {
       throw new NotFoundException(String.format("Price with id \'%s\' doesn`t exist.", id));
     }
@@ -258,19 +257,19 @@ public class PriceService {
     if (isPriceUsedInOrder(dbPrice.get())) {
       throw new AlreadyUsedException(String.format("Price with id: \'%s\' is already used in at least in one order thus can not be deleted.", id));
     }
-    priceRepository.deleteById(id);
+    rentalPriceRepository.deleteById(id);
   }
 
-  public Page<Price> search(Integer year, String machineInternalId, String priceType, Pageable pageable) {
+  public Page<RentalPrice> search(Integer year, String machineInternalId, String priceType, Pageable pageable) {
     if (year == null) {
-      return priceRepository.findByMachine_InternalIdContainingAndPriceTypeContaining(machineInternalId, priceType, pageable);
+      return rentalPriceRepository.findByMachine_InternalIdContainingAndPriceTypeContaining(machineInternalId, priceType, pageable);
     } else {
-      return priceRepository.findByYearEqualsAndMachine_InternalIdContainingAndPriceTypeContaining(year, machineInternalId, priceType, pageable);
+      return rentalPriceRepository.findByYearEqualsAndMachine_InternalIdContainingAndPriceTypeContaining(year, machineInternalId, priceType, pageable);
     }
   }
 
-  public Price getById(String id) {
-    Optional<Price> dbPrice = priceRepository.findById(id);
+  public RentalPrice getById(String id) {
+    Optional<RentalPrice> dbPrice = rentalPriceRepository.findById(id);
 
     if (!dbPrice.isPresent()) {
       throw new NotFoundException(String.format("Price with id: \'%s\' does not exist.", id));
@@ -279,24 +278,24 @@ public class PriceService {
     return dbPrice.get();
   }
 
-  private void createPriceId(Price price) {
-    Integer year = price.getYear();
+  private void createPriceId(RentalPrice rentalPrice) {
+    Integer year = rentalPrice.getYear();
     String yearString = String.valueOf(year);
 
-    Long machineId = price.getMachine().getId();
+    Long machineId = rentalPrice.getMachine().getId();
     String machineIdString = String.valueOf(machineId);
 
-    String priceType = price.getPriceType();
+    String priceType = rentalPrice.getPriceType();
 
-    BigDecimal priceValue = price.getPrice().setScale(2);
+    BigDecimal priceValue = rentalPrice.getPrice().setScale(2);
     String priceValueString = String.valueOf(priceValue);
 
     String priceId = yearString + machineIdString + priceType + priceValueString;
-    price.setId(priceId);
+    rentalPrice.setId(priceId);
   }
 
   public boolean isMachineUsed(Long machineId) {
-    return priceRepository.existsByMachine_Id(machineId);
+    return rentalPriceRepository.existsByMachine_Id(machineId);
   }
 
 }

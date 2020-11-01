@@ -4,9 +4,9 @@ import machineRental.MR.exception.BindingResultException;
 import machineRental.MR.exception.DeleteException;
 import machineRental.MR.exception.NotFoundException;
 import machineRental.MR.order.model.Order;
-import machineRental.MR.price.rental.model.Price;
+import machineRental.MR.price.rental.model.RentalPrice;
 import machineRental.MR.repository.OrderRepository;
-import machineRental.MR.repository.PriceRepository;
+import machineRental.MR.repository.RentalPriceRepository;
 import machineRental.MR.order.ErrorOrder;
 import machineRental.MR.order.OrderValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class OrderService {
   private OrderRepository orderRepository;
 
   @Autowired
-  private PriceRepository priceRepository;
+  private RentalPriceRepository rentalPriceRepository;
 
   @Autowired
   private OrderValidator orderValidator;
@@ -81,7 +81,7 @@ public class OrderService {
 
   private boolean isPriceInDb(Order order) {
 
-    Optional<Price> dbPrice = Optional.ofNullable(getPriceFromDb(order));
+    Optional<RentalPrice> dbPrice = Optional.ofNullable(getPriceFromDb(order));
     return dbPrice.isPresent();
   }
 
@@ -145,7 +145,7 @@ public class OrderService {
     order.setDbPrice(true);
   }
 
-  private Price getPriceFromDb(Order order) {
+  private RentalPrice getPriceFromDb(Order order) {
     Integer priceYear = order.getStartDate().getYear();
     String machineInternalId = String.valueOf(order.getMachine().getId());
     String priceType = order.getPriceType();
@@ -153,7 +153,7 @@ public class OrderService {
 
     String priceId = priceYear + machineInternalId + priceType + price;
 
-    Optional<Price> dbPrice = priceRepository.findById(priceId);
+    Optional<RentalPrice> dbPrice = rentalPriceRepository.findById(priceId);
 
     if (!dbPrice.isPresent()) {
       throw new NotFoundException("Price for year: " + priceYear + " and machine internal id: " + machineInternalId + " and sellPrice type " + priceType + " does not exist");

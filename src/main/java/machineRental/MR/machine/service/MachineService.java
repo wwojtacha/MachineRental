@@ -7,7 +7,7 @@ import machineRental.MR.machine.model.Machine;
 import machineRental.MR.order.service.OrderService;
 import machineRental.MR.price.distance.service.DistancePriceService;
 import machineRental.MR.price.hour.service.HourPriceService;
-import machineRental.MR.price.rental.service.PriceService;
+import machineRental.MR.price.rental.service.RentalPriceService;
 import machineRental.MR.repository.MachineRepository;
 import machineRental.MR.repository.MachineTypeRepository;
 import machineRental.MR.workDocument.service.WorkDocumentService;
@@ -39,7 +39,7 @@ public class MachineService {
     private DistancePriceService distancePriceService;
 
     @Autowired
-    private PriceService priceService;
+    private RentalPriceService rentalPriceService;
 
     @Autowired
     private OrderService orderService;
@@ -136,6 +136,6 @@ public class MachineService {
     private boolean isMachineAlreadyUsedInPriceLists(Long machineId) {
         return hourPriceService.isMachineUsed(machineId)
             || distancePriceService.isMachineUsed(machineId)
-            || priceService.isMachineUsed(machineId);
+            || rentalPriceService.isMachineUsed(machineId);
     }
 }

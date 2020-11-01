@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @Table(name = "prices")
-public class Price {
+public class RentalPrice {
 
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.AUTO)
