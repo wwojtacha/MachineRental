@@ -8,10 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import machineRental.MR.estimate.model.EstimatePosition;
+import machineRental.MR.machineType.CostCategory;
 import machineRental.MR.machineType.model.MachineType;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.WorkDocumentEntryValidator;
+import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
 import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
+import machineRental.MR.workDocumentEntry.service.RoadCardEntryService;
 import machineRental.MR.workDocumentEntry.service.WorkReportEntryService;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,9 @@ public class EquipmentCostCalculator {
 
   @Autowired
   private WorkReportEntryService workReportEntryService;
+
+  @Autowired
+  private RoadCardEntryService roadCardEntryService;
 
   /**
    * @param startDate Date after which data should be found.
@@ -53,14 +59,14 @@ public class EquipmentCostCalculator {
     for (WorkReportEntry workReportEntry : workReportEntries) {
 
       WorkCode workCode = workReportEntry.getWorkCode();
+      MachineType machineType = workReportEntry.getWorkDocument().getMachine().getMachineType();
 
       //      do not calculate neither cost nor hour count of PR activity. This activity is calculated as TotalLabourCost
-      if (WorkCode.PR == workCode) {
+      if (WorkCode.PR == workCode || CostCategory.EQUIPMENT != machineType.getCostCategory()) {
         continue;
       }
 
       EstimatePosition estimatePosition = workReportEntry.getEstimatePosition();
-      MachineType machineType = workReportEntry.getWorkDocument().getMachine().getMachineType();
 
       double currentHoursCount = (double) Duration.between(workReportEntry.getStartHour(), workReportEntry.getEndHour()).toSeconds() / 3600;
       BigDecimal currentEquipmentCost = BigDecimal.valueOf(currentHoursCount).multiply(workReportEntry.getHourPrice().getPrice());
@@ -89,6 +95,49 @@ public class EquipmentCostCalculator {
       }
 
     }
+
+    List<RoadCardEntry> roadCardEntries = roadCardEntryService.getRoadCardEntriesBetweenDatesByEstimateProjectCode(startDate, endDate, projectCode);
+
+    for (RoadCardEntry roadCardEntry : roadCardEntries) {
+
+      WorkCode workCode = roadCardEntry.getWorkCode();
+      MachineType machineType = roadCardEntry.getWorkDocument().getMachine().getMachineType();
+
+      //      do not calculate neither cost nor hour count of PR activity. This activity is calculated as TotalLabourCost
+      if (WorkCode.PR == workCode || CostCategory.EQUIPMENT != machineType.getCostCategory()) {
+        continue;
+      }
+
+      EstimatePosition estimatePosition = roadCardEntry.getEstimatePosition();
+
+      double currentHoursCount = (double) Duration.between(roadCardEntry.getStartHour(), roadCardEntry.getEndHour()).toSeconds() / 3600;
+      BigDecimal currentEquipmentCost = BigDecimal.valueOf(currentHoursCount).multiply(roadCardEntry.getDistancePrice().getPrice());
+
+      EquipmentCost equipmentCost = equipmentCostsMultiKeyMap.get(estimatePosition, machineType);
+
+      if (!WorkDocumentEntryValidator.EXPLOITATION_WORK_CODES.contains(roadCardEntry.getWorkCode())) {
+        currentHoursCount = 0;
+      }
+
+      if (equipmentCost == null) {
+        equipmentCost = new EquipmentCost();
+        equipmentCost.setMachineType(machineType);
+        equipmentCost.setWorkHoursCount(currentHoursCount);
+        equipmentCost.setCostValue(currentEquipmentCost);
+
+        equipmentCostsMultiKeyMap.put(estimatePosition, machineType, equipmentCost);
+      } else {
+        double previousWorkHoursCount = equipmentCost.getWorkHoursCount();
+        BigDecimal previousCostValue = equipmentCost.getCostValue();
+
+        equipmentCost.setWorkHoursCount(previousWorkHoursCount + currentHoursCount);
+        equipmentCost.setCostValue(previousCostValue.add(currentEquipmentCost));
+
+        equipmentCostsMultiKeyMap.put(estimatePosition, machineType, equipmentCost);
+      }
+
+    }
+
     return equipmentCostsMultiKeyMap;
   }
 
