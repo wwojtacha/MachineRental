@@ -7,9 +7,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.machineType.CostCategory;
 import machineRental.MR.machineType.model.MachineType;
+import machineRental.MR.price.PriceType;
+import machineRental.MR.price.distance.model.DistancePrice;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.WorkDocumentEntryValidator;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
@@ -111,7 +114,20 @@ public class EquipmentCostCalculator {
       EstimatePosition estimatePosition = roadCardEntry.getEstimatePosition();
 
       double currentHoursCount = (double) Duration.between(roadCardEntry.getStartHour(), roadCardEntry.getEndHour()).toSeconds() / 3600;
-      BigDecimal currentEquipmentCost = BigDecimal.valueOf(currentHoursCount).multiply(roadCardEntry.getDistancePrice().getPrice());
+      BigDecimal currentEquipmentCost = BigDecimal.valueOf(0);
+
+      DistancePrice distancePrice = roadCardEntry.getDistancePrice();
+      PriceType priceType = distancePrice.getPriceType();
+      BigDecimal price = distancePrice.getPrice();
+
+      double distance = roadCardEntry.getDistance();
+      double quantity = roadCardEntry.getQuantity();
+
+      if (PriceType.DISTANCE_KM == priceType) {
+        currentEquipmentCost = BigDecimal.valueOf(distance).multiply(price);
+      } else {
+        currentEquipmentCost = BigDecimal.valueOf(quantity).multiply(price);
+      }
 
       EquipmentCost equipmentCost = equipmentCostsMultiKeyMap.get(estimatePosition, machineType);
 
