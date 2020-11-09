@@ -11,7 +11,12 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface WorkReportEntryRepository extends JpaRepository<WorkReportEntry, Long> {
 
-  List<WorkReportEntry> findAllByWorkDocument_Id(String workDocumentId);
+//  List<WorkReportEntry> findAllByWorkDocument_Id(String workDocumentId);
+
+  @Query(
+      value = "SELECT * FROM work_reports_entries WHERE work_document_id = ?1",
+      nativeQuery = true)
+  List<WorkReportEntry> getAllByWorkDocument_Id(String workDocumentId);
 
   void deleteByWorkDocument_Id(String workDocumentId);
 

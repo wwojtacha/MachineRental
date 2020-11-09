@@ -116,7 +116,7 @@ public class WorkReportEntryService {
   }
 
   public List<WorkReportEntry> getEntriesFor(String workDocumentId) {
-    return workReportEntryRepository.findAllByWorkDocument_Id(workDocumentId);
+    return workReportEntryRepository.getAllByWorkDocument_Id(workDocumentId);
   }
 
   private void validateWorkReportEntryIdConsistency(Long id, Long currentId, BindingResult bindingResult) {
@@ -135,7 +135,7 @@ public class WorkReportEntryService {
   @Transactional
   public void deleteByWorkDocument(String workDocumentId) {
 
-    List<WorkReportEntry> workReportEntries = workReportEntryRepository.findAllByWorkDocument_Id(workDocumentId);
+    List<WorkReportEntry> workReportEntries = workReportEntryRepository.getAllByWorkDocument_Id(workDocumentId);
 
     if (workReportEntries.isEmpty()) {
       return;
@@ -159,7 +159,7 @@ public class WorkReportEntryService {
     String documentNumber = dbWorkDocument.getId();
     LocalDate editedDate = editedWorkDocument.getDate();
 
-    List<WorkReportEntry> workReportEntries = workReportEntryRepository.findAllByWorkDocument_Id(documentNumber);
+    List<WorkReportEntry> workReportEntries = workReportEntryRepository.getAllByWorkDocument_Id(documentNumber);
 
     for (WorkReportEntry workReportEntry : workReportEntries) {
       String editedMachineNumber = editedWorkDocument.getMachine().getInternalId();
