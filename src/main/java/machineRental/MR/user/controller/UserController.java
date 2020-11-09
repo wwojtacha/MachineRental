@@ -35,13 +35,19 @@ public class UserController {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
-  public List<User> getAllUsers() {
+  public List<UserDto> getAllUsers() {
     return userService.getAllUsers();
   }
 
-  @PutMapping("/{id}")
+  @PutMapping("/withoutPassword/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public User update(@PathVariable UUID id, @RequestBody @Valid User user, BindingResult bindingResult) {
+  public UserDto update(@PathVariable UUID id, @RequestBody @Valid UserDto user, BindingResult bindingResult) {
+    return userService.update(user, id, bindingResult);
+  }
+
+  @PutMapping("/withPassword/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  public UserDto update(@PathVariable UUID id, @RequestBody @Valid User user, BindingResult bindingResult) {
     return userService.update(user, id, bindingResult);
   }
 

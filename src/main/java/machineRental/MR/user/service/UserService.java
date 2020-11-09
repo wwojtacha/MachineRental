@@ -4,6 +4,7 @@ package machineRental.MR.user.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -50,14 +51,44 @@ public class UserService {
         return save(user);
     }
 
-    public User update(User user, UUID id, BindingResult bindingResult) {
+    /**
+     * Method used in case of updating user data without password change. Even if modified password were passed, all in all password relating db username will be set.
+     * @param userDto edited UserDto model
+     * @param id id of UserDto object
+     * @param bindingResult passed binding result
+     * @return
+     */
+    public UserDto update(UserDto userDto, UUID id, BindingResult bindingResult) {
+        if (!authorizationValidator.isAdmin()) {
+            throw new UnauthorizedException("You are not permitted to update user information.");
+        }
+        User user = convertToEntity(userDto);
+        validate(user, get(id).getUsername(), bindingResult);
+
+        user.setId(id);
+        userRepository.save(user);
+//        save(user);
+
+        return convertToDto(user);
+    }
+
+    /**
+     * Method used in case of updating user data including password change.*
+     * @param user passed User model
+     * @param id id of User object
+     * @param bindingResult passed binding result
+     * @return
+     */
+    public UserDto update(User user, UUID id, BindingResult bindingResult) {
         if (!authorizationValidator.isAdmin()) {
             throw new UnauthorizedException("You are not permitted to update user information.");
         }
         validate(user, get(id).getUsername(), bindingResult);
 
         user.setId(id);
-        return save(user);
+        save(user);
+
+        return convertToDto(user);
     }
 
     private void validate(User user, String currentUsername, BindingResult bindingResult) {
@@ -82,11 +113,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         if (!authorizationValidator.isAdmin()) {
             throw new UnauthorizedException("You are not permitted to get users information.");
         }
-        return userRepository.findAll();
+        return userRepository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     public UserDto getUser(String username) {
@@ -96,9 +127,34 @@ public class UserService {
         }
 
         User user = dbUser.get();
+
+        return convertToDto(user);
+    }
+
+    private User convertToEntity(UserDto userDto) {
+
+        String username = userDto.getUsername();
+        Optional<User> dbUser = userRepository.findByUsername(username);
+        if (!dbUser.isPresent()) {
+            throw new NotFoundException(String.format("User with username: %s not found.", username));
+        }
+
+        UUID id = userDto.getId();
+        String password = dbUser.get().getPassword();
+        UserRole role = userDto.getUserRole();
+        String email = userDto.getEmail();
+        User user = new User(id, username, password, role, email);
+
+        return user;
+    }
+
+    private UserDto convertToDto(User user) {
+
+        UUID id = user.getId();
+        String username = user.getUsername();
         UserRole role = user.getRole();
         String email = user.getEmail();
-        UserDto userDto = new UserDto(username, role, email);
+        UserDto userDto = new UserDto(id, username, role, email);
 
         return userDto;
     }
