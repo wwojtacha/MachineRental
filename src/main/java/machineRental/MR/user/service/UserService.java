@@ -43,12 +43,14 @@ public class UserService {
                         new NotFoundException(String.format("User with id: %s not found", id)));
     }
 
-    public User create (User user, BindingResult bindingResult) {
+    public UserDto create (User user, BindingResult bindingResult) {
         if (!authorizationValidator.isAdmin()) {
             throw new UnauthorizedException("You are not permitted to uploadFile new users.");
         }
         validate(user, null, bindingResult);
-        return save(user);
+        save(user);
+
+        return convertToDto(user);
     }
 
     /**

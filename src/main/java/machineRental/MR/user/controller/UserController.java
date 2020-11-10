@@ -29,7 +29,7 @@ public class UserController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public User create(@RequestBody @Valid User user, BindingResult bindingResult) {
+  public UserDto create(@RequestBody @Valid User user, BindingResult bindingResult) {
     return userService.create(user, bindingResult);
   }
 
