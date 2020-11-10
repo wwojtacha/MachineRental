@@ -71,7 +71,7 @@ public class HourPrice extends DateCheckerObject {
 
     @NotNull
     @Column(nullable = false)
-    private LocalDate modificationDate;
+    private LocalDate modificationDate = LocalDate.now();
 
 
 }

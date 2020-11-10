@@ -79,5 +79,5 @@ public class DistancePrice extends DateCheckerObject {
 
     @NotNull
     @Column(nullable = false)
-    private LocalDate modificationDate;
+    private LocalDate modificationDate = LocalDate.now();
 }
