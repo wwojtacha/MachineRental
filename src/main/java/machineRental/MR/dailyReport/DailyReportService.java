@@ -25,7 +25,7 @@ public class DailyReportService {
   public DailyReportDto create(DailyReportDto dailyReportDto, BindingResult bindingResult) {
 
     DailyReport dailyReport = convertToEntity(dailyReportDto);
-    validateDailyReportConsistency(dailyReport, null, bindingResult);
+//    validateDailyReportConsistency(dailyReport, null, bindingResult);
 
     dailyReportRepository.save(dailyReport);
 
@@ -109,7 +109,7 @@ public class DailyReportService {
     }
 
     DailyReport dailyReport = convertToEntity(dailyReportDto);
-    validateDailyReportConsistency(dailyReport, dbDailyReport.get(), bindingResult);
+//    validateDailyReportConsistency(dailyReport, dbDailyReport.get(), bindingResult);
 
     dailyReport.setId(id);
     dailyReportRepository.save(dailyReport);
