@@ -1,25 +1,33 @@
 package machineRental.MR.machine.model;
 
 
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import machineRental.MR.client.model.Client;
 import machineRental.MR.machineType.model.MachineType;
+import org.hibernate.annotations.Type;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Data
+//@EqualsAndHashCode(of = "uuid")
 @Table(name = "machines")
 public class Machine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+//    @Type(type = "uuid-char")
+//    @Column(name = "uuid")
+//    private final UUID uuid = UUID.randomUUID();
 
     @NotBlank(message = "Machine reqiures its unique number!")
     @Column(nullable = false, unique = true)
