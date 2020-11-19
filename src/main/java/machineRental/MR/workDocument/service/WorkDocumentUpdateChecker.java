@@ -12,7 +12,7 @@ public interface WorkDocumentUpdateChecker {
   void checkOnUpdate(WorkDocument dbWorkDocument, WorkDocument editedWorkDocument, BindingResult bindingResult);
 
   default boolean isSameOperator(WorkDocument dbWorkDocument, WorkDocument editedWorkDocument) {
-    return dbWorkDocument.getOperator().getId() == editedWorkDocument.getOperator().getId();
+    return dbWorkDocument.getOperator().getName().equals(editedWorkDocument.getOperator().getName());
   }
 
   default boolean isSameMachine(WorkDocument dbWorkDocument, WorkDocument editedWorkDocument) {

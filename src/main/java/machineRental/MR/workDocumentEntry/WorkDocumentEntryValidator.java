@@ -46,13 +46,13 @@ public class WorkDocumentEntryValidator {
           Machine machineToCheck = workDocumentToCheck.getMachine();
 
 // working time of operator with name "XXX" is allowed to overlap in time
-          if (currentOperator.getId() == operatorToCheck.getId() && !currentOperator.getName().toUpperCase().equals("XXX")) {
+          if (currentOperator.getName().equals(operatorToCheck.getName()) && !currentOperator.getName().toUpperCase().equals("XXX")) {
             bindingResult.addError(new FieldError(
                 "workReportEntryOperator",
                 "workHour",
                 String.format("Working time of operator %s overlaps in time with his/her other activity for this day.", operatorToCheck.getName())));
             break ALL_WORK_REPORT_ENTRIES;
-          } else if (currentMachine.getId() == machineToCheck.getId() && isWorkCodeOverlapping(workDocumentEntry, workDocumentEntryToCheck)) {
+          } else if (currentMachine.getInternalId().equals(machineToCheck.getInternalId()) && isWorkCodeOverlapping(workDocumentEntry, workDocumentEntryToCheck)) {
             bindingResult.addError(new FieldError(
                 "workReportEntryMachine",
                 "workHour",
