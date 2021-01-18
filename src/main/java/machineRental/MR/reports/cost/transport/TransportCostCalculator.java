@@ -79,11 +79,14 @@ public class TransportCostCalculator {
       BigDecimal price = distancePrice.getPrice();
       double currentDistance = roadCardEntry.getDistance();
       double currentQuantity = roadCardEntry.getQuantity();
+      int currentRuns = roadCardEntry.getRunsNumber();
 
       BigDecimal currentTransportCost = BigDecimal.valueOf(0);
 
       if (PriceType.DISTANCE_KM == priceType) {
         currentTransportCost = BigDecimal.valueOf(currentDistance).multiply(price);
+      } else if (PriceType.DISTANCE_RUN == priceType) {
+        currentTransportCost = BigDecimal.valueOf(currentRuns).multiply(price);
       } else {
         currentTransportCost = BigDecimal.valueOf(currentQuantity).multiply(price);
       }

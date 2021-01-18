@@ -63,6 +63,10 @@ public class RoadCardEntry extends WorkDocumentEntry {
 
   @NotNull
   @Column
+  private int runsNumber;
+
+  @NotNull
+  @Column
   private double distance;
 
   @NotNull
