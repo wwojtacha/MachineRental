@@ -66,24 +66,27 @@ public class RoadCardEntryReportGenerator extends ExcelReportGenerator{
     headerCell.setCellValue("Measure unit");
 
     headerCell = headerRow.createCell(15);
-    headerCell.setCellValue("Distance");
+    headerCell.setCellValue("Runs number");
 
     headerCell = headerRow.createCell(16);
-    headerCell.setCellValue("Price type");
+    headerCell.setCellValue("Distance");
 
     headerCell = headerRow.createCell(17);
-    headerCell.setCellValue("Price");
+    headerCell.setCellValue("Price type");
 
     headerCell = headerRow.createCell(18);
-    headerCell.setCellValue("Estimate name");
+    headerCell.setCellValue("Price");
 
     headerCell = headerRow.createCell(19);
-    headerCell.setCellValue("Estimate cost code");
+    headerCell.setCellValue("Estimate name");
 
     headerCell = headerRow.createCell(20);
-    headerCell.setCellValue("Cost code (sell)");
+    headerCell.setCellValue("Estimate cost code");
 
     headerCell = headerRow.createCell(21);
+    headerCell.setCellValue("Cost code (sell)");
+
+    headerCell = headerRow.createCell(22);
     headerCell.setCellValue("Accepted by");
 
   }
@@ -144,24 +147,27 @@ public class RoadCardEntryReportGenerator extends ExcelReportGenerator{
       rowCell.setCellValue(roadCardEntry.getMeasureUnit());
 
       rowCell = row.createCell(15);
-      rowCell.setCellValue(roadCardEntry.getDistance());
+      rowCell.setCellValue(roadCardEntry.getRunsNumber());
 
       rowCell = row.createCell(16);
-      rowCell.setCellValue(roadCardEntry.getDistancePrice().getPriceType().name());
+      rowCell.setCellValue(roadCardEntry.getDistance());
 
       rowCell = row.createCell(17);
-      rowCell.setCellValue(roadCardEntry.getDistancePrice().getPrice().doubleValue());
+      rowCell.setCellValue(roadCardEntry.getDistancePrice().getPriceType().name());
 
       rowCell = row.createCell(18);
-      rowCell.setCellValue(roadCardEntry.getEstimatePosition().getName());
+      rowCell.setCellValue(roadCardEntry.getDistancePrice().getPrice().doubleValue());
 
       rowCell = row.createCell(19);
-      rowCell.setCellValue(roadCardEntry.getEstimatePosition().getCostCode().getFullCode());
+      rowCell.setCellValue(roadCardEntry.getEstimatePosition().getName());
 
       rowCell = row.createCell(20);
-      rowCell.setCellValue(roadCardEntry.getCostCode().getFullCode());
+      rowCell.setCellValue(roadCardEntry.getEstimatePosition().getCostCode().getFullCode());
 
       rowCell = row.createCell(21);
+      rowCell.setCellValue(roadCardEntry.getCostCode().getFullCode());
+
+      rowCell = row.createCell(22);
       rowCell.setCellValue(roadCardEntry.getAcceptingPerson().getName());
 
       rowNumber++;
