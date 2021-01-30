@@ -72,6 +72,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     final CorsConfiguration corsConfiguration = new CorsConfiguration();
     corsConfiguration.addAllowedOrigin("http://localhost:4200");
     corsConfiguration.addAllowedOrigin("http://161.97.86.114:4200");
+    corsConfiguration.addAllowedOrigin("http://161.97.179.115:4200");
     corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
     corsConfiguration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     // setAllowCredentials(true) is important, otherwise:
