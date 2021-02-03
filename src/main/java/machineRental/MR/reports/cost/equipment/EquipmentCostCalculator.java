@@ -13,6 +13,7 @@ import machineRental.MR.machineType.CostCategory;
 import machineRental.MR.machineType.model.MachineType;
 import machineRental.MR.price.PriceType;
 import machineRental.MR.price.distance.model.DistancePrice;
+import machineRental.MR.reports.HoursCalculator;
 import machineRental.MR.workDocumentEntry.WorkCode;
 import machineRental.MR.workDocumentEntry.WorkDocumentEntryValidator;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
@@ -31,6 +32,8 @@ public class EquipmentCostCalculator {
 
   @Autowired
   private RoadCardEntryService roadCardEntryService;
+
+  private HoursCalculator hoursCalculator = new HoursCalculator();
 
   /**
    * @param startDate Date after which data should be found.
@@ -71,7 +74,7 @@ public class EquipmentCostCalculator {
 
       EstimatePosition estimatePosition = workReportEntry.getEstimatePosition();
 
-      double currentHoursCount = (double) Duration.between(workReportEntry.getStartHour(), workReportEntry.getEndHour()).toSeconds() / 3600;
+      double currentHoursCount = hoursCalculator.getNumberOfHours(workReportEntry);
       BigDecimal currentEquipmentCost = BigDecimal.valueOf(currentHoursCount).multiply(workReportEntry.getHourPrice().getPrice());
 
       EquipmentCost equipmentCost = equipmentCostsMultiKeyMap.get(estimatePosition, machineType);
@@ -113,7 +116,7 @@ public class EquipmentCostCalculator {
 
       EstimatePosition estimatePosition = roadCardEntry.getEstimatePosition();
 
-      double currentHoursCount = (double) Duration.between(roadCardEntry.getStartHour(), roadCardEntry.getEndHour()).toSeconds() / 3600;
+      double currentHoursCount = hoursCalculator.getNumberOfHours(roadCardEntry);
       BigDecimal currentEquipmentCost = BigDecimal.valueOf(0);
 
       DistancePrice distancePrice = roadCardEntry.getDistancePrice();

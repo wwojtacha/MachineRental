@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import machineRental.MR.estimate.model.EstimatePosition;
 import machineRental.MR.machineType.model.MachineType;
+import machineRental.MR.reports.HoursCalculator;
 import machineRental.MR.reports.cost.equipment.EquipmentCost;
 import machineRental.MR.reports.cost.equipment.TotalEquipmentCost;
 import machineRental.MR.workDocumentEntry.WorkCode;
@@ -30,6 +31,8 @@ public class LabourCostCalculator {
 
   @Autowired
   private RoadCardEntryService roadCardEntryService;
+
+  private HoursCalculator hoursCalculator = new HoursCalculator();
 
   /**
    * @param startDate Date after which data should be found.
@@ -61,7 +64,7 @@ public class LabourCostCalculator {
 
       EstimatePosition estimatePosition = workDocumentEntry.getEstimatePosition();
 
-      double currentHoursCount = (double) Duration.between(workDocumentEntry.getStartHour(), workDocumentEntry.getEndHour()).toSeconds() / 3600;
+      double currentHoursCount = hoursCalculator.getNumberOfHours(workDocumentEntry);
       BigDecimal currentCostValue = getCostValue(currentHoursCount, workDocumentEntry);
 
       TotalLabourCost totalLabourCost = totalLabourCostsMap.get(estimatePosition);

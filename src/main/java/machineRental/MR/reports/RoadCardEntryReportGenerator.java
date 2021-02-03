@@ -1,8 +1,11 @@
 package machineRental.MR.reports;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import machineRental.MR.workDocumentEntry.model.RoadCardEntry;
+import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import machineRental.MR.workDocumentEntry.service.RoadCardEntryService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -15,6 +18,8 @@ public class RoadCardEntryReportGenerator extends ExcelReportGenerator{
 
   @Autowired
   private RoadCardEntryService roadCardEntryService;
+
+  private HoursCalculator hoursCalculator = new HoursCalculator();
 
   @Override
   void writeHeaderLine(Sheet sheet) {
@@ -51,42 +56,48 @@ public class RoadCardEntryReportGenerator extends ExcelReportGenerator{
     headerCell.setCellValue("End hour");
 
     headerCell = headerRow.createCell(10);
-    headerCell.setCellValue("Loading place");
+    headerCell.setCellValue("Number of hours in first day");
 
     headerCell = headerRow.createCell(11);
-    headerCell.setCellValue("Material");
+    headerCell.setCellValue("Number of hours in second day");
 
     headerCell = headerRow.createCell(12);
-    headerCell.setCellValue("Unloading place");
+    headerCell.setCellValue("Loading place");
 
     headerCell = headerRow.createCell(13);
-    headerCell.setCellValue("Quantity");
+    headerCell.setCellValue("Material");
 
     headerCell = headerRow.createCell(14);
-    headerCell.setCellValue("Measure unit");
+    headerCell.setCellValue("Unloading place");
 
     headerCell = headerRow.createCell(15);
-    headerCell.setCellValue("Runs number");
+    headerCell.setCellValue("Quantity");
 
     headerCell = headerRow.createCell(16);
-    headerCell.setCellValue("Distance");
+    headerCell.setCellValue("Measure unit");
 
     headerCell = headerRow.createCell(17);
-    headerCell.setCellValue("Price type");
+    headerCell.setCellValue("Runs number");
 
     headerCell = headerRow.createCell(18);
-    headerCell.setCellValue("Price");
+    headerCell.setCellValue("Distance");
 
     headerCell = headerRow.createCell(19);
-    headerCell.setCellValue("Estimate name");
+    headerCell.setCellValue("Price type");
 
     headerCell = headerRow.createCell(20);
-    headerCell.setCellValue("Estimate cost code");
+    headerCell.setCellValue("Price");
 
     headerCell = headerRow.createCell(21);
-    headerCell.setCellValue("Cost code (sell)");
+    headerCell.setCellValue("Estimate name");
 
     headerCell = headerRow.createCell(22);
+    headerCell.setCellValue("Estimate cost code");
+
+    headerCell = headerRow.createCell(23);
+    headerCell.setCellValue("Cost code (sell)");
+
+    headerCell = headerRow.createCell(24);
     headerCell.setCellValue("Accepted by");
 
   }
@@ -131,43 +142,53 @@ public class RoadCardEntryReportGenerator extends ExcelReportGenerator{
       rowCell = row.createCell(9);
       rowCell.setCellValue(roadCardEntry.getEndHour().toString());
 
+//      in case of entry starting in one day and ending in the next one, number of hours must be divided into 2 days
+      double firstDayHours = hoursCalculator.getFirstDayNumberOfHours(roadCardEntry);
+      double secondDayHours = hoursCalculator.getSecondDayNumberOfHours(roadCardEntry);
+
       rowCell = row.createCell(10);
-      rowCell.setCellValue(roadCardEntry.getLoadingPlace());
+      rowCell.setCellValue(firstDayHours);
 
       rowCell = row.createCell(11);
-      rowCell.setCellValue(roadCardEntry.getMaterial());
+      rowCell.setCellValue(secondDayHours);
 
       rowCell = row.createCell(12);
-      rowCell.setCellValue(roadCardEntry.getUnloadingPlace());
+      rowCell.setCellValue(roadCardEntry.getLoadingPlace());
 
       rowCell = row.createCell(13);
-      rowCell.setCellValue(roadCardEntry.getQuantity());
+      rowCell.setCellValue(roadCardEntry.getMaterial());
 
       rowCell = row.createCell(14);
-      rowCell.setCellValue(roadCardEntry.getMeasureUnit());
+      rowCell.setCellValue(roadCardEntry.getUnloadingPlace());
 
       rowCell = row.createCell(15);
-      rowCell.setCellValue(roadCardEntry.getRunsNumber());
+      rowCell.setCellValue(roadCardEntry.getQuantity());
 
       rowCell = row.createCell(16);
-      rowCell.setCellValue(roadCardEntry.getDistance());
+      rowCell.setCellValue(roadCardEntry.getMeasureUnit());
 
       rowCell = row.createCell(17);
-      rowCell.setCellValue(roadCardEntry.getDistancePrice().getPriceType().name());
+      rowCell.setCellValue(roadCardEntry.getRunsNumber());
 
       rowCell = row.createCell(18);
-      rowCell.setCellValue(roadCardEntry.getDistancePrice().getPrice().doubleValue());
+      rowCell.setCellValue(roadCardEntry.getDistance());
 
       rowCell = row.createCell(19);
-      rowCell.setCellValue(roadCardEntry.getEstimatePosition().getName());
+      rowCell.setCellValue(roadCardEntry.getDistancePrice().getPriceType().name());
 
       rowCell = row.createCell(20);
-      rowCell.setCellValue(roadCardEntry.getEstimatePosition().getCostCode().getFullCode());
+      rowCell.setCellValue(roadCardEntry.getDistancePrice().getPrice().doubleValue());
 
       rowCell = row.createCell(21);
-      rowCell.setCellValue(roadCardEntry.getCostCode().getFullCode());
+      rowCell.setCellValue(roadCardEntry.getEstimatePosition().getName());
 
       rowCell = row.createCell(22);
+      rowCell.setCellValue(roadCardEntry.getEstimatePosition().getCostCode().getFullCode());
+
+      rowCell = row.createCell(23);
+      rowCell.setCellValue(roadCardEntry.getCostCode().getFullCode());
+
+      rowCell = row.createCell(24);
       rowCell.setCellValue(roadCardEntry.getAcceptingPerson().getName());
 
       rowNumber++;

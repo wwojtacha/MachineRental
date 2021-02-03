@@ -4,7 +4,9 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import machineRental.MR.workDocumentEntry.model.WorkReportEntry;
 import machineRental.MR.workDocumentEntry.service.WorkReportEntryService;
@@ -18,8 +20,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class WorkReportEntryReportGenerator extends ExcelReportGenerator{
 
+
   @Autowired
   private WorkReportEntryService workReportEntryService;
+
+  private HoursCalculator hoursCalculator = new HoursCalculator();
 
   public void generateExcelReport(LocalDate startDate, LocalDate endDate) {
 
@@ -85,33 +90,39 @@ public class WorkReportEntryReportGenerator extends ExcelReportGenerator{
     headerCell.setCellValue("End hour");
 
     headerCell = headerRow.createCell(10);
-    headerCell.setCellValue("Place of work");
+    headerCell.setCellValue("Number of hours in first day");
 
     headerCell = headerRow.createCell(11);
-    headerCell.setCellValue("Type of work");
+    headerCell.setCellValue("Number of hours in second day");
 
     headerCell = headerRow.createCell(12);
-    headerCell.setCellValue("Work quantity");
+    headerCell.setCellValue("Place of work");
 
     headerCell = headerRow.createCell(13);
-    headerCell.setCellValue("Measure unit");
+    headerCell.setCellValue("Type of work");
 
     headerCell = headerRow.createCell(14);
-    headerCell.setCellValue("Price type");
+    headerCell.setCellValue("Work quantity");
 
     headerCell = headerRow.createCell(15);
-    headerCell.setCellValue("Price");
+    headerCell.setCellValue("Measure unit");
 
     headerCell = headerRow.createCell(16);
-    headerCell.setCellValue("Estimate name");
+    headerCell.setCellValue("Price type");
 
     headerCell = headerRow.createCell(17);
-    headerCell.setCellValue("Estimate cost code");
+    headerCell.setCellValue("Price");
 
     headerCell = headerRow.createCell(18);
-    headerCell.setCellValue("Cost code (sell)");
+    headerCell.setCellValue("Estimate name");
 
     headerCell = headerRow.createCell(19);
+    headerCell.setCellValue("Estimate cost code");
+
+    headerCell = headerRow.createCell(20);
+    headerCell.setCellValue("Cost code (sell)");
+
+    headerCell = headerRow.createCell(21);
     headerCell.setCellValue("Accepted by");
 
   }
@@ -156,39 +167,50 @@ public class WorkReportEntryReportGenerator extends ExcelReportGenerator{
       rowCell = row.createCell(9);
       rowCell.setCellValue(workReportEntry.getEndHour().toString());
 
+//      in case of entry starting in one day and ending in the next one, number of hours must be divided into 2 days
+      double firstDayHours = hoursCalculator.getFirstDayNumberOfHours(workReportEntry);
+      double secondDayHours = hoursCalculator.getSecondDayNumberOfHours(workReportEntry);
+
       rowCell = row.createCell(10);
-      rowCell.setCellValue(workReportEntry.getPlaceOfWork());
+      rowCell.setCellValue(firstDayHours);
 
       rowCell = row.createCell(11);
-      rowCell.setCellValue(workReportEntry.getTypeOfWork());
+      rowCell.setCellValue(secondDayHours);
 
       rowCell = row.createCell(12);
-      rowCell.setCellValue(workReportEntry.getWorkQuantity());
+      rowCell.setCellValue(workReportEntry.getPlaceOfWork());
 
       rowCell = row.createCell(13);
-      rowCell.setCellValue(workReportEntry.getMeasureUnit());
+      rowCell.setCellValue(workReportEntry.getTypeOfWork());
 
       rowCell = row.createCell(14);
-      rowCell.setCellValue(workReportEntry.getHourPrice().getPriceType().name());
+      rowCell.setCellValue(workReportEntry.getWorkQuantity());
 
       rowCell = row.createCell(15);
-      rowCell.setCellValue(workReportEntry.getHourPrice().getPrice().doubleValue());
+      rowCell.setCellValue(workReportEntry.getMeasureUnit());
 
       rowCell = row.createCell(16);
-      rowCell.setCellValue(workReportEntry.getEstimatePosition().getName());
+      rowCell.setCellValue(workReportEntry.getHourPrice().getPriceType().name());
 
       rowCell = row.createCell(17);
-      rowCell.setCellValue(workReportEntry.getEstimatePosition().getCostCode().getFullCode());
+      rowCell.setCellValue(workReportEntry.getHourPrice().getPrice().doubleValue());
 
       rowCell = row.createCell(18);
-      rowCell.setCellValue(workReportEntry.getCostCode().getFullCode());
+      rowCell.setCellValue(workReportEntry.getEstimatePosition().getName());
 
       rowCell = row.createCell(19);
+      rowCell.setCellValue(workReportEntry.getEstimatePosition().getCostCode().getFullCode());
+
+      rowCell = row.createCell(20);
+      rowCell.setCellValue(workReportEntry.getCostCode().getFullCode());
+
+      rowCell = row.createCell(21);
       rowCell.setCellValue(workReportEntry.getAcceptingPerson().getName());
 
       rowNumber++;
 
     }
   }
+
 }
 

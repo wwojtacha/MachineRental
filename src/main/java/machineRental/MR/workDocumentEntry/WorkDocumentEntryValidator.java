@@ -27,7 +27,7 @@ public class WorkDocumentEntryValidator {
     ALL_WORK_REPORT_ENTRIES:
     for (WorkDocumentEntryForValidation workDocumentEntry : workDocumentEntriesForValidation) {
 
-      checkSameEntryWorkingHours(workDocumentEntry, bindingResult);
+//      checkSameEntryWorkingHours(workDocumentEntry, bindingResult);
 
       WorkDocument currentWorkDocument = workDocumentEntry.getWorkDocument();
       Operator currentOperator = currentWorkDocument.getOperator();
